@@ -1,9 +1,7 @@
-#!/bin/bash
-set -e  # Exit on error
+set -e
 
 echo "=== Starting DevContainer setup ==="
 
-# Configure timezone
 if [ -e /etc/timezone ]; then
     echo "✓ Timezone already configured: $(cat /etc/timezone)"
 else
@@ -13,30 +11,24 @@ else
     echo "✓ Timezone configured"
 fi
 
-# Configure SSH keys
 echo "• Configuring SSH keys..."
 mkdir -p ~/.ssh
 chmod 700 ~/.ssh
 
-# Copy SSH keys from host if mounted
 if [ -d "/ssh-keys" ] && [ -n "$(ls -A /ssh-keys 2>/dev/null)" ]; then
     echo "• Copying SSH keys from host..."
     cp -r /ssh-keys/* ~/.ssh/ 2>/dev/null || true
 
-    # Set proper permissions for SSH keys
     find ~/.ssh -type f -name "id_*" ! -name "*.pub" -exec chmod 600 {} \; 2>/dev/null || true
     find ~/.ssh -type f -name "*.pub" -exec chmod 644 {} \; 2>/dev/null || true
     find ~/.ssh -type f -name "known_hosts" -exec chmod 644 {} \; 2>/dev/null || true
     find ~/.ssh -type f -name "config" -exec chmod 600 {} \; 2>/dev/null || true
 
-    # Fix SSH config for Linux (remove macOS-specific options)
     if [ -f ~/.ssh/config ]; then
         echo "• Fixing SSH config for Linux..."
-        # Remove macOS-specific options
         sed -i '/UseKeychain/d' ~/.ssh/config 2>/dev/null || true
         sed -i '/AddKeysToAgent yes/d' ~/.ssh/config 2>/dev/null || true
 
-        # Add Linux-compatible options if not present
         if ! grep -q "^Host \*" ~/.ssh/config; then
             cat > ~/.ssh/config.new << 'SSHEOF'
 Host *
@@ -55,7 +47,6 @@ else
     echo "• No SSH keys found in /ssh-keys, using SSH Agent forwarding"
 fi
 
-# Create a clean SSH config if it doesn't exist
 if [ ! -f ~/.ssh/config ] || ! grep -q "^Host" ~/.ssh/config; then
     echo "• Creating SSH config..."
     cat > ~/.ssh/config << 'SSHEOF'
@@ -68,7 +59,6 @@ SSHEOF
     echo "✓ SSH config created"
 fi
 
-# Configure SSH Agent
 if [ -S /tmp/ssh-agent.sock ]; then
     export SSH_AUTH_SOCK=/tmp/ssh-agent.sock
     echo "• Using SSH agent forwarding from host"
@@ -77,7 +67,6 @@ elif [ -z "$SSH_AUTH_SOCK" ]; then
     echo "• Started local SSH agent"
 fi
 
-# Add SSH keys to agent if they exist (only if not using forwarding)
 if [ -n "$SSH_AUTH_SOCK" ]; then
     if [ -f ~/.ssh/id_rsa ] && [ "$SSH_AUTH_SOCK" != "/tmp/ssh-agent.sock" ]; then
         ssh-add ~/.ssh/id_rsa 2>/dev/null || true
@@ -89,7 +78,6 @@ fi
 
 echo "✓ SSH configured"
 
-# Configure Git
 if [ ! -f ~/.gitconfig ]; then
     echo "• Configuring Git..."
     git config --global init.defaultBranch main || true
@@ -97,14 +85,12 @@ if [ ! -f ~/.gitconfig ]; then
     echo "✓ Git configured"
 fi
 
-# Wait for Oh My Zsh to be installed
 echo "• Waiting for Oh My Zsh installation..."
 while [ ! -d "$HOME/.oh-my-zsh" ]; do
     sleep 1
 done
 echo "✓ Oh My Zsh found"
 
-# Install Spaceship theme
 echo "• Installing Spaceship theme..."
 if [ ! -d "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt" ]; then
     git clone --depth=1 https://github.com/spaceship-prompt/spaceship-prompt.git "$HOME/.oh-my-zsh/custom/themes/spaceship-prompt" || true
@@ -114,7 +100,6 @@ else
     echo "✓ Spaceship theme already installed"
 fi
 
-# Install Zinit
 echo "• Installing Zinit..."
 if [ ! -d "$HOME/.local/share/zinit/zinit.git" ]; then
     mkdir -p "$HOME/.local/share/zinit"
@@ -124,7 +109,6 @@ else
     echo "✓ Zinit already installed"
 fi
 
-# Configure .zshrc
 echo "• Configuring .zshrc..."
 cat > ~/.zshrc << 'EOF'
 # Path to your oh-my-zsh installation.
@@ -184,14 +168,11 @@ EOF
 
 echo "✓ .zshrc configured"
 
-# Change default shell to ZSH
 echo "• Setting ZSH as default shell..."
 ZSH_PATH=$(which zsh)
 if [ -n "$ZSH_PATH" ]; then
-    # Try to change shell for current user
     echo $ZSH_PATH > ~/.zsh_shell 2>/dev/null || true
 
-    # Create a .bash_profile to automatically switch to ZSH
     cat > ~/.bash_profile << 'BASHEOF'
 # Auto-switch to ZSH
 if [ -f "$HOME/.zshrc" ]; then
