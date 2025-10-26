@@ -1,0 +1,79 @@
+{
+	"name": "[Codeflix] Catalog Admin Service",
+	"dockerComposeFile": [
+		"../docker-compose.yaml",
+		"docker-compose.yml"
+	],
+	"service": "app",
+	"workspaceFolder": "/home/node/app",
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/ssh-keys,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.gitconfig,target=/git-config/config,type=bind,consistency=cached"
+	],
+	"postCreateCommand": "bash .devcontainer/post-create.sh",
+	"containerEnv": {
+		"TZ": "${localEnv:TZ}"
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": false,
+			"upgradePackages": true,
+			"username": "automatic",
+			"userUid": "1001",
+			"userGid": "automatic"
+		},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {}
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh"
+			},
+			"extensions": [
+				"openai.chatgpt",
+				"amazonwebservices.amazon-q-vscode",
+				"amazonwebservices.codewhisperer-for-command-line-companion",
+				"vmware.vscode-manifest-yaml",
+				"kamikillerto.vscode-colorize",
+				"clinyong.vscode-css-modules",
+				"hediet.debug-visualizer",
+				"ms-azuretools.vscode-docker",
+				"p1c2u.docker-compose",
+				"mikestead.dotenv",
+				"dracula-theme.theme-dracula",
+				"EditorConfig.EditorConfig",
+				"dbaeumer.vscode-eslint",
+				"GraphQL.vscode-graphql-execution",
+				"GraphQL.vscode-graphql",
+				"GraphQL.vscode-graphql-syntax",
+				"chaliy.handlebars-preview",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"VisualStudioExptTeam.intellicode-api-usage-examples",
+				"ms-vscode.vscode-typescript-next",
+				"Orta.vscode-jest",
+				"firsttris.vscode-jest-runner",
+				"ms-vsliveshare.vsliveshare",
+				"unifiedjs.vscode-mdx",
+				"42Crunch.vscode-openapi",
+				"esbenp.prettier-vscode",
+				"Prisma.prisma",
+				"redhat.vscode-commons",
+				"ms-vscode-remote.remote-ssh",
+				"ms-vscode-remote.remote-ssh-edit",
+				"ms-vscode.remote-server",
+				"ms-vscode-remote.vscode-remote-extensionpack",
+				"humao.rest-client",
+				"qwtel.sqlite-viewer",
+				"bradlc.vscode-tailwindcss",
+				"zxh404.vscode-proto3",
+				"styled-components.vscode-styled-components",
+				"statelyai.stately-vscode",
+				"dksedgwick.xstviz",
+				"redhat.vscode-yaml",
+				"ms-vscode-remote.remote-containers"
+			]
+		}
+	}
+}
