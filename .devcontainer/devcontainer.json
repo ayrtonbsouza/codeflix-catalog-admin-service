@@ -7,8 +7,7 @@
 	"service": "app",
 	"workspaceFolder": "/home/node/app",
 	"mounts": [
-		"source=${localEnv:HOME}/.ssh,target=/ssh-keys,type=bind,consistency=cached",
-		"source=${localEnv:HOME}/.gitconfig,target=/git-config/config,type=bind,consistency=cached"
+		"source=${localEnv:HOME}/.ssh,target=/ssh-keys,type=bind,consistency=cached"
 	],
 	"postCreateCommand": "bash .devcontainer/post-create.sh",
 	"containerEnv": {
