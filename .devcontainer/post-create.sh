@@ -78,11 +78,18 @@ fi
 
 echo "✓ SSH configured"
 
-if [ ! -f ~/.gitconfig ]; then
-    echo "• Configuring Git..."
-    git config --global init.defaultBranch main || true
-    git config --global core.editor "code --wait" || true
-    echo "✓ Git configured"
+echo "• Configuring Git..."
+if [ -f /gitconfig-host ]; then
+    echo "• Copying Git config from host..."
+    cp /gitconfig-host ~/.gitconfig 2>/dev/null || true
+    echo "✓ Git config copied from host"
+else
+    if [ ! -f ~/.gitconfig ]; then
+        echo "• Setting up default Git config..."
+        git config --global init.defaultBranch main || true
+        git config --global core.editor "code --wait" || true
+        echo "✓ Git configured with defaults"
+    fi
 fi
 
 echo "• Waiting for Oh My Zsh installation..."
