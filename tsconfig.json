@@ -3,6 +3,8 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "esnext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "types": ["jest", "node"],
     "baseUrl": ".",
     "paths": {
@@ -12,8 +14,8 @@
     "declaration": true,
     "declarationMap": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
     "strict": true,
+    "strictNullChecks": false,
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
