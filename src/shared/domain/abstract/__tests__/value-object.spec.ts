@@ -1,4 +1,4 @@
-import { ValueObject } from "@/shared/domain/abstract/value-object";
+import { ValueObject } from '@/shared/domain/abstract/value-object';
 
 class StringValueObject extends ValueObject {
   constructor(readonly value: string) {
@@ -13,7 +13,11 @@ class NumberValueObject extends ValueObject {
 }
 
 class ComplexValueObject extends ValueObject {
-  constructor(readonly id: string, readonly name: string, readonly metadata: Record<string, unknown>) {
+  constructor(
+    readonly id: string,
+    readonly name: string,
+    readonly metadata: Record<string, unknown>,
+  ) {
     super();
   }
 }
@@ -161,4 +165,4 @@ describe('[Value Object Abstract Class]', () => {
       expect(result).toBe(false);
     });
   });
-})
+});

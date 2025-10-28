@@ -1,5 +1,5 @@
-import { Uuid } from "@/shared/domain/value-objects/uuid.vo";
-import { CategoryValidatorFactory } from "@/category/domain/validators/category.validator";
+import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
+import { CategoryValidatorFactory } from '@/category/domain/validators/category.validator';
 
 export type CategoryConstructorProps = {
   id?: Uuid;
@@ -7,13 +7,13 @@ export type CategoryConstructorProps = {
   description?: string | null;
   is_active?: boolean;
   created_at?: Date;
-}
+};
 
 export type CreateCategoryProps = {
   name: string;
   description?: string | null;
   is_active?: boolean;
-}
+};
 
 export class Category {
   id: Uuid;
@@ -70,6 +70,6 @@ export class Category {
       description: this.description,
       is_active: this.is_active,
       created_at: this.created_at,
-    }
+    };
   }
 }

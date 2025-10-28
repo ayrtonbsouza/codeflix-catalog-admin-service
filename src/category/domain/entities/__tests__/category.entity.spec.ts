@@ -1,5 +1,5 @@
-import { Category } from "@/category/domain/entities/category.entity";
-import { Uuid, InvalidUuidError } from "@/shared/domain/value-objects/uuid.vo";
+import { Category } from '@/category/domain/entities/category.entity';
+import { Uuid, InvalidUuidError } from '@/shared/domain/value-objects/uuid.vo';
 
 let callCount = 0;
 const uuidValues = [
@@ -18,7 +18,8 @@ jest.mock('uuid', () => ({
     if (!value || value.length === 0) {
       return false;
     }
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }),
 }));
@@ -34,7 +35,13 @@ describe('[Category Entity]', () => {
       const createdAt = new Date('2024-01-01');
 
       // Act
-      const category = new Category({ id, name, description, is_active: isActive, created_at: createdAt });
+      const category = new Category({
+        id,
+        name,
+        description,
+        is_active: isActive,
+        created_at: createdAt,
+      });
 
       // Assert
       expect(category.id).toBe(id);
@@ -135,7 +142,11 @@ describe('[Category Entity]', () => {
       const isActive = false;
 
       // Act
-      const category = Category.create({ name, description, is_active: isActive });
+      const category = Category.create({
+        name,
+        description,
+        is_active: isActive,
+      });
 
       // Assert
       expect(category).toBeInstanceOf(Category);
@@ -207,10 +218,14 @@ describe('[Category Entity]', () => {
     it('should accept any valid string as name', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
-      const validNames = ['Short', 'A Very Long Category Name With Spaces', 'Name_With_Underscores'];
+      const validNames = [
+        'Short',
+        'A Very Long Category Name With Spaces',
+        'Name_With_Underscores',
+      ];
 
       // Act & Assert
-      validNames.forEach(name => {
+      validNames.forEach((name) => {
         category.changeName(name);
         expect(category.name).toBe(name);
       });
@@ -360,7 +375,13 @@ describe('[Category Entity]', () => {
       const description = 'Description';
       const isActive = true;
       const createdAt = new Date('2024-01-01');
-      const category = new Category({ id, name, description, is_active: isActive, created_at: createdAt });
+      const category = new Category({
+        id,
+        name,
+        description,
+        is_active: isActive,
+        created_at: createdAt,
+      });
 
       // Act
       const json = category.toJSON();
@@ -371,7 +392,7 @@ describe('[Category Entity]', () => {
         name,
         description,
         is_active: isActive,
-        created_at: createdAt
+        created_at: createdAt,
       });
     });
 
@@ -417,7 +438,10 @@ describe('[Category Entity]', () => {
 
     it('should change name and description in sequence', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name', description: 'Original Description' });
+      const category = new Category({
+        name: 'Original Name',
+        description: 'Original Description',
+      });
       const newName = 'New Name';
       const newDescription = 'New Description';
 
@@ -437,7 +461,13 @@ describe('[Category Entity]', () => {
       const description = 'Test Description';
       const isActive = false;
       const createdAt = new Date('2024-01-01');
-      const category = new Category({ id, name, description, is_active: isActive, created_at: createdAt });
+      const category = new Category({
+        id,
+        name,
+        description,
+        is_active: isActive,
+        created_at: createdAt,
+      });
 
       // Act
       const json = category.toJSON();
@@ -478,7 +508,9 @@ describe('[Category Entity]', () => {
       // Assert
       expect(category.id).toBeInstanceOf(Uuid);
       expect(typeof category.id.value).toBe('string');
-      expect(category.id.value).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      expect(category.id.value).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+      );
     });
 
     it('should accept a Uuid instance when id is provided', () => {

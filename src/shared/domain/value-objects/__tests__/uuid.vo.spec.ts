@@ -1,4 +1,4 @@
-import { Uuid, InvalidUuidError } from "@/shared/domain/value-objects/uuid.vo";
+import { Uuid, InvalidUuidError } from '@/shared/domain/value-objects/uuid.vo';
 import { validate as uuidValidate } from 'uuid';
 
 let callCount = 0;
@@ -18,7 +18,8 @@ jest.mock('uuid', () => ({
     if (!value || value.length === 0) {
       return false;
     }
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     return uuidRegex.test(value);
   }),
 }));
