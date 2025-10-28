@@ -1,10 +1,33 @@
 import { Category } from "@/category/domain/entities/category.entity";
+import { Uuid, InvalidUuidError } from "@/shared/domain/value-objects/uuid.vo";
+
+let callCount = 0;
+const uuidValues = [
+  '550e8400-e29b-41d4-a716-446655440000',
+  '550e8400-e29b-41d4-a716-446655440001',
+  '550e8400-e29b-41d4-a716-446655440002',
+];
+
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => {
+    const value = uuidValues[callCount % uuidValues.length];
+    callCount++;
+    return value;
+  }),
+  validate: jest.fn((value: string) => {
+    if (!value || value.length === 0) {
+      return false;
+    }
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(value);
+  }),
+}));
 
 describe('[Category Entity]', () => {
   describe('[constructor]', () => {
     it('should create a category with all fields provided', () => {
       // Arrange
-      const id = '123';
+      const id = new Uuid();
       const name = 'Category Test';
       const description = 'Test Description';
       const isActive = false;
@@ -30,7 +53,7 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.name).toBe(name);
-      expect(category.id).toBeUndefined();
+      expect(category.id).toBeInstanceOf(Uuid);
       expect(category.description).toBeNull();
       expect(category.is_active).toBe(true);
       expect(category.created_at).toBeInstanceOf(Date);
@@ -144,7 +167,7 @@ describe('[Category Entity]', () => {
       expect(category.is_active).toBe(true);
     });
 
-    it('should not generate id automatically (would be undefined)', () => {
+    it('should generate id automatically as Uuid instance', () => {
       // Arrange
       const name = 'Category Test';
 
@@ -152,7 +175,9 @@ describe('[Category Entity]', () => {
       const category = Category.create({ name });
 
       // Assert
-      expect(category.id).toBeUndefined();
+      expect(category.id).toBeInstanceOf(Uuid);
+      expect(category.id.value).toBeDefined();
+      expect(typeof category.id.value).toBe('string');
     });
 
     it('should throw an error if name is invalid', () => {
@@ -330,7 +355,7 @@ describe('[Category Entity]', () => {
   describe('[toJSON]', () => {
     it('should return a JSON object with all properties', () => {
       // Arrange
-      const id = '123';
+      const id = new Uuid('550e8400-e29b-41d4-a716-446655440000');
       const name = 'Test';
       const description = 'Description';
       const isActive = true;
@@ -342,7 +367,7 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(json).toEqual({
-        id,
+        id: id.value,
         name,
         description,
         is_active: isActive,
@@ -363,7 +388,7 @@ describe('[Category Entity]', () => {
       expect(json.created_at).toBeInstanceOf(Date);
     });
 
-    it('should include undefined fields as undefined (not null)', () => {
+    it('should include id as string in JSON and description as null', () => {
       // Arrange
       const category = new Category({ name: 'Test' });
 
@@ -371,7 +396,7 @@ describe('[Category Entity]', () => {
       const json = category.toJSON();
 
       // Assert
-      expect(json.id).toBeUndefined();
+      expect(typeof json.id).toBe('string');
       expect(json.description).toBeNull(); // description defaults to null
     });
   });
@@ -407,7 +432,7 @@ describe('[Category Entity]', () => {
 
     it('should serialize complete category to JSON', () => {
       // Arrange
-      const id = '123';
+      const id = new Uuid('550e8400-e29b-41d4-a716-446655440000');
       const name = 'Test';
       const description = 'Test Description';
       const isActive = false;
@@ -418,7 +443,7 @@ describe('[Category Entity]', () => {
       const json = category.toJSON();
 
       // Assert
-      expect(json.id).toBe(id);
+      expect(json.id).toBe(id.value);
       expect(json.name).toBe(name);
       expect(json.description).toBe(description);
       expect(json.is_active).toBe(isActive);
@@ -439,6 +464,69 @@ describe('[Category Entity]', () => {
       expect(json.name).toBe('Updated Name');
       expect(json.description).toBe('Updated Description');
       expect(json.is_active).toBe(false);
+    });
+  });
+
+  describe('[UUID integration behavior]', () => {
+    it('should generate a Uuid instance when id is not provided', () => {
+      // Arrange
+      const name = 'Category Test';
+
+      // Act
+      const category = new Category({ name });
+
+      // Assert
+      expect(category.id).toBeInstanceOf(Uuid);
+      expect(typeof category.id.value).toBe('string');
+      expect(category.id.value).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    });
+
+    it('should accept a Uuid instance when id is provided', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const name = 'Category Test';
+
+      // Act
+      const category = new Category({ id: customUuid, name });
+
+      // Assert
+      expect(category.id).toBe(customUuid);
+      expect(category.id.value).toBe('550e8400-e29b-41d4-a716-446655440000');
+    });
+
+    it('should throw InvalidUuidError when trying to create Uuid with invalid string', () => {
+      // Arrange & Act & Assert
+      expect(() => {
+        // This will throw during Uuid construction
+        new Uuid('invalid-uuid-string');
+      }).toThrow(InvalidUuidError);
+    });
+
+    it('should throw InvalidUuidError when creating Uuid with invalid string and using it in Category', () => {
+      // Arrange
+      const name = 'Category Test';
+
+      // Act & Assert
+      expect(() => {
+        // This will throw during Uuid construction, before Category is created
+        const invalidUuid = new Uuid('not-a-valid-uuid');
+        new Category({ id: invalidUuid, name });
+      }).toThrow(InvalidUuidError);
+    });
+
+    it('should have different UUIDs generated for each category created without id', () => {
+      // Arrange
+      const name1 = 'Category 1';
+      const name2 = 'Category 2';
+
+      // Act
+      const category1 = new Category({ name: name1 });
+      const category2 = new Category({ name: name2 });
+
+      // Assert
+      expect(category1.id).toBeInstanceOf(Uuid);
+      expect(category2.id).toBeInstanceOf(Uuid);
+      expect(category1.id.value).not.toBe(category2.id.value);
     });
   });
 });

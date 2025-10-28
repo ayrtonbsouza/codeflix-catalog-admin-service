@@ -1,5 +1,7 @@
+import { Uuid } from "@/shared/domain/value-objects/uuid.vo";
+
 export type CategoryConstructorProps = {
-  id?: string;
+  id?: Uuid;
   name: string;
   description?: string | null;
   is_active?: boolean;
@@ -13,18 +15,25 @@ export type CreateCategoryProps = {
 }
 
 export class Category {
-  id: string;
+  id: Uuid;
   name: string;
   description: string | null;
   is_active: boolean;
   created_at: Date;
 
   constructor(props: CategoryConstructorProps) {
-    this.id = props.id;
+    this.id = props.id ?? new Uuid();
+    this.validateName(props.name);
     this.name = props.name;
     this.description = props.description ?? null;
     this.is_active = props.is_active ?? true;
     this.created_at = props.created_at ?? new Date();
+  }
+
+  private validateName(name: string): void {
+    if (!name || typeof name !== 'string' || name.trim().length === 0) {
+      throw new Error('name should not be empty');
+    }
   }
 
   static create(props: CreateCategoryProps): Category {
@@ -32,6 +41,7 @@ export class Category {
   }
 
   changeName(name: string): void {
+    this.validateName(name);
     this.name = name;
   }
 
@@ -49,7 +59,7 @@ export class Category {
 
   toJSON() {
     return {
-      id: this.id,
+      id: this.id.value,
       name: this.name,
       description: this.description,
       is_active: this.is_active,
