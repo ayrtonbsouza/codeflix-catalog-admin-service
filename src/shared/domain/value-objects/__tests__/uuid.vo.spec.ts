@@ -173,8 +173,8 @@ describe('[Uuid Value Object]', () => {
       const providedUuid = '550e8400-e29b-41d4-a716-446655440000';
 
       // Act
-      new Uuid(); // Generates UUID
-      new Uuid(providedUuid); // Uses provided UUID
+      new Uuid();
+      new Uuid(providedUuid);
 
       // Assert
       expect(uuidValidate).toHaveBeenCalledTimes(2);
@@ -261,8 +261,6 @@ describe('[Uuid Value Object]', () => {
       // Act & Assert
       const originalValue = uuid.value;
       (uuid as any).value = 'new-value';
-      // Note: readonly is a TypeScript compile-time check, not runtime
-      // In runtime, the value can be modified, but TypeScript prevents it at compile time
       expect(typeof uuid.value).toBe('string');
     });
   });

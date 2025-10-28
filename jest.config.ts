@@ -28,6 +28,9 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
+  setupFilesAfterEnv: [
+    '<rootDir>/../src/shared/infra/testing/except-helpers.ts',
+  ],
   transform: {
     '^.+\\.(t|j)sx?$': [
       '@swc/jest',

@@ -208,7 +208,7 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is too short (less than 3 characters)', () => {
       // Arrange
-      const name = 'AB'; // Menor que 3 caracteres
+      const name = 'AB';
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
         name: ['name must be longer than or equal to 3 characters'],
@@ -223,7 +223,7 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is too long (more than 255 characters)', () => {
       // Arrange
-      const name = 'A'.repeat(256); // Mais de 255 caracteres
+      const name = 'A'.repeat(256);
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
         name: ['name must be shorter than or equal to 255 characters'],
@@ -329,7 +329,7 @@ describe('[Category Entity]', () => {
     it('should throw an error if name is too short (less than 3 characters)', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
-      const shortName = 'AB'; // Menor que 3 caracteres
+      const shortName = 'AB';
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
         name: ['name must be longer than or equal to 3 characters'],
@@ -345,7 +345,7 @@ describe('[Category Entity]', () => {
     it('should throw an error if name is too long (more than 255 characters)', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
-      const longName = 'A'.repeat(256); // Mais de 255 caracteres
+      const longName = 'A'.repeat(256);
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
         name: ['name must be shorter than or equal to 255 characters'],
@@ -502,7 +502,7 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(typeof json.id).toBe('string');
-      expect(json.description).toBeNull(); // description defaults to null
+      expect(json.description).toBeNull();
     });
   });
 
@@ -581,6 +581,67 @@ describe('[Category Entity]', () => {
     });
   });
 
+  describe('[entity_id]', () => {
+    it('should return the entity id as ValueObject', () => {
+      // Arrange
+      const name = 'Category Test';
+      const category = new Category({ name });
+
+      // Act
+      const entityId = category.entity_id;
+
+      // Assert
+      expect(entityId).toBeInstanceOf(Uuid);
+      expect(entityId).toBe(category.id);
+    });
+
+    it('should return the same id when entity_id is called multiple times', () => {
+      // Arrange
+      const name = 'Category Test';
+      const category = new Category({ name });
+
+      // Act
+      const entityId1 = category.entity_id;
+      const entityId2 = category.entity_id;
+
+      // Assert
+      expect(entityId1).toBe(entityId2);
+      expect(entityId1).toBe(category.id);
+    });
+
+    it('should return a ValueObject with a valid UUID value', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const name = 'Category Test';
+      const category = new Category({ id: customUuid, name });
+
+      // Act
+      const entityId = category.entity_id as Uuid;
+
+      // Assert
+      expect(entityId.value).toBe('550e8400-e29b-41d4-a716-446655440000');
+      expect(entityId.equals(customUuid)).toBe(true);
+    });
+
+    it('should return a ValueObject that implements the equals method', () => {
+      // Arrange
+      const customUuid1 = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const customUuid2 = new Uuid('550e8400-e29b-41d4-a716-446655440001');
+      const name1 = 'Category 1';
+      const name2 = 'Category 2';
+      const category1 = new Category({ id: customUuid1, name: name1 });
+      const category2 = new Category({ id: customUuid2, name: name2 });
+
+      // Act
+      const entityId1 = category1.entity_id as Uuid;
+      const entityId2 = category2.entity_id as Uuid;
+
+      // Assert
+      expect(entityId1.equals(entityId2)).toBe(false);
+      expect(entityId1.equals(entityId1)).toBe(true);
+    });
+  });
+
   describe('[UUID integration behavior]', () => {
     it('should generate a Uuid instance when id is not provided', () => {
       // Arrange
@@ -613,7 +674,6 @@ describe('[Category Entity]', () => {
     it('should throw InvalidUuidError when trying to create Uuid with invalid string', () => {
       // Arrange & Act & Assert
       expect(() => {
-        // This will throw during Uuid construction
         new Uuid('invalid-uuid-string');
       }).toThrow(InvalidUuidError);
     });
@@ -624,7 +684,6 @@ describe('[Category Entity]', () => {
 
       // Act & Assert
       expect(() => {
-        // This will throw during Uuid construction, before Category is created
         const invalidUuid = new Uuid('not-a-valid-uuid');
         new Category({ id: invalidUuid, name });
       }).toThrow(InvalidUuidError);

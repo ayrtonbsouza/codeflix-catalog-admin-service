@@ -6,7 +6,6 @@ import {
   LoadEntityError,
 } from '@/shared/domain/validators/validation.error';
 
-// Stub class to test BaseValidationError since it's abstract
 class BaseValidationErrorStub extends BaseValidationError {}
 
 describe('[Validation Error]', () => {

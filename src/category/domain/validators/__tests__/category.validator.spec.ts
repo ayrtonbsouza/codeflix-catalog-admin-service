@@ -51,7 +51,7 @@ describe('[Category Validator]', () => {
     });
 
     it('should validate successfully with minimum fields', () => {
-      // Arrange
+      // Arrange``
       const category = new Category({
         name: 'Min',
       });
@@ -90,8 +90,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toContain('name should not be empty');
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name should not be empty'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -106,8 +107,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toBeDefined();
+      expect({ validator, data: category }).containsErrorMessages({
+        name: expect.any(Array),
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -122,8 +124,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toBeDefined();
+      expect({ validator, data: category }).containsErrorMessages({
+        name: expect.any(Array),
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -138,10 +141,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toContain(
-        'name must be longer than or equal to 3 characters',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be longer than or equal to 3 characters'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -156,10 +158,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toContain(
-        'name must be shorter than or equal to 255 characters',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be shorter than or equal to 255 characters'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -174,8 +175,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toContain('name must be a string');
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -190,8 +192,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toContain('name must be a string');
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -207,10 +210,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.is_active).toContain(
-        'is_active must be a boolean value',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        is_active: ['is_active must be a boolean value'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -226,10 +228,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.is_active).toContain(
-        'is_active must be a boolean value',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        is_active: ['is_active must be a boolean value'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -245,10 +246,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.description).toContain(
-        'description must be a string',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        description: ['description must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
   });
@@ -279,7 +279,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.name).toContain('name should not be empty');
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name should not be empty'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -293,9 +295,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.name).toContain(
-        'name must be longer than or equal to 3 characters',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be longer than or equal to 3 characters'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -309,9 +311,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.name).toContain(
-        'name must be shorter than or equal to 255 characters',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be shorter than or equal to 255 characters'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -325,7 +327,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.name).toContain('name must be a string');
+      expect({ validator, data: category }).containsErrorMessages({
+        name: ['name must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -339,7 +343,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.name).toBeDefined();
+      expect({ validator, data: category }).containsErrorMessages({
+        name: expect.any(Array),
+      });
       expect(validator.validatedData).toBeNull();
     });
   });
@@ -396,9 +402,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.description).toContain(
-        'description must be a string',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        description: ['description must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
 
@@ -412,9 +418,9 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors?.description).toContain(
-        'description must be a string',
-      );
+      expect({ validator, data: category }).containsErrorMessages({
+        description: ['description must be a string'],
+      });
       expect(validator.validatedData).toBeNull();
     });
   });
@@ -490,9 +496,10 @@ describe('[Category Validator]', () => {
 
       // Assert
       expect(isValid).toBe(false);
-      expect(validator.errors).not.toBeNull();
-      expect(validator.errors?.name).toBeDefined();
-      expect(validator.errors?.is_active).toBeDefined();
+      expect({ validator, data: category }).containsErrorMessages({
+        name: expect.any(Array),
+        is_active: expect.any(Array),
+      });
       expect(validator.validatedData).toBeNull();
     });
 

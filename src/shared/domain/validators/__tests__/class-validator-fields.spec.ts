@@ -1,6 +1,5 @@
 import { ClassValidatorFields } from '@/shared/domain/validators/class-validator-fields';
 
-// Stub class to test ClassValidatorFields
 class TestDTO {
   name: string;
 
@@ -9,7 +8,6 @@ class TestDTO {
   }
 }
 
-// Simplified stub class
 class SimpleStub extends ClassValidatorFields<TestDTO> {}
 
 describe('[ClassValidatorFields]', () => {

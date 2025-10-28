@@ -1,6 +1,8 @@
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 import { CategoryValidatorFactory } from '@/category/domain/validators/category.validator';
 import { EntityValidationError } from '@/shared/domain/validators/validation.error';
+import { Entity } from '@/shared/domain/abstract/entity';
+import type { ValueObject } from '@/shared/domain/abstract/value-object';
 
 export type CategoryConstructorProps = {
   id?: Uuid;
@@ -16,7 +18,7 @@ export type CreateCategoryProps = {
   is_active?: boolean;
 };
 
-export class Category {
+export class Category extends Entity {
   id: Uuid;
   name: string;
   description: string | null;
@@ -24,6 +26,7 @@ export class Category {
   created_at: Date;
 
   constructor(props: CategoryConstructorProps) {
+    super();
     this.id = props.id ?? new Uuid();
     this.name = props.name;
     this.description = props.description ?? null;
@@ -42,7 +45,7 @@ export class Category {
     const isValid = validator.validate(entity);
 
     if (!isValid) {
-      throw new EntityValidationError(validator.errors || ({} as any));
+      throw new EntityValidationError(validator.errors);
     }
   }
 
@@ -62,6 +65,10 @@ export class Category {
 
   deactivate(): void {
     this.is_active = false;
+  }
+
+  get entity_id(): ValueObject {
+    return this.id;
   }
 
   toJSON() {
