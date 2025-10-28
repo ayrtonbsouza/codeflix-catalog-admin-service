@@ -1,5 +1,6 @@
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 import { CategoryValidatorFactory } from '@/category/domain/validators/category.validator';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 export type CategoryConstructorProps = {
   id?: Uuid;
@@ -24,35 +25,35 @@ export class Category {
 
   constructor(props: CategoryConstructorProps) {
     this.id = props.id ?? new Uuid();
-    this.validateName(props.name);
     this.name = props.name;
     this.description = props.description ?? null;
     this.is_active = props.is_active ?? true;
     this.created_at = props.created_at ?? new Date();
   }
 
-  private validateName(name: string): void {
-    if (!name || typeof name !== 'string' || name.trim().length === 0) {
-      throw new Error('name should not be empty');
-    }
-  }
-
   static create(props: CreateCategoryProps): Category {
-    return new Category(props);
+    const category = new Category(props);
+    Category.validate(category);
+    return category;
   }
 
   static validate(entity: Category) {
     const validator = CategoryValidatorFactory.create();
-    return validator.validate(entity);
+    const isValid = validator.validate(entity);
+
+    if (!isValid) {
+      throw new EntityValidationError(validator.errors || ({} as any));
+    }
   }
 
   changeName(name: string): void {
-    this.validateName(name);
     this.name = name;
+    Category.validate(this);
   }
 
   changeDescription(description: string): void {
     this.description = description;
+    Category.validate(this);
   }
 
   activate(): void {

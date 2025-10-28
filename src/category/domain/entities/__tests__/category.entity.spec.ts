@@ -1,5 +1,6 @@
 import { Category } from '@/category/domain/entities/category.entity';
 import { Uuid, InvalidUuidError } from '@/shared/domain/value-objects/uuid.vo';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 let callCount = 0;
 const uuidValues = [
@@ -24,7 +25,32 @@ jest.mock('uuid', () => ({
   }),
 }));
 
+const mockValidate = jest.fn();
+const mockValidator = {
+  validate: mockValidate,
+  errors: null as any,
+};
+
+jest.mock('@/category/domain/validators/category.validator', () => {
+  const actual = jest.requireActual(
+    '@/category/domain/validators/category.validator',
+  );
+
+  return {
+    ...actual,
+    CategoryValidatorFactory: {
+      create: jest.fn(() => mockValidator),
+    },
+  };
+});
+
 describe('[Category Entity]', () => {
+  beforeEach(() => {
+    mockValidate.mockReturnValue(true);
+    mockValidator.errors = null;
+    jest.clearAllMocks();
+  });
+
   describe('[constructor]', () => {
     it('should create a category with all fields provided', () => {
       // Arrange
@@ -102,36 +128,6 @@ describe('[Category Entity]', () => {
       expect(category.created_at).toBe(customDate);
       expect(category.created_at.getTime()).toBe(customDate.getTime());
     });
-
-    it('should throw an error if name is an empty string', () => {
-      // Arrange
-      const emptyName = '';
-
-      // Act & Assert
-      expect(() => {
-        new Category({ name: emptyName });
-      }).toThrow();
-    });
-
-    it('should throw an error if name is undefined', () => {
-      // Arrange
-      const name = undefined as any;
-
-      // Act & Assert
-      expect(() => {
-        new Category({ name });
-      }).toThrow();
-    });
-
-    it('should throw an error if name is null', () => {
-      // Arrange
-      const name = null as any;
-
-      // Act & Assert
-      expect(() => {
-        new Category({ name });
-      }).toThrow();
-    });
   });
 
   describe('[create]', () => {
@@ -153,6 +149,8 @@ describe('[Category Entity]', () => {
       expect(category.name).toBe(name);
       expect(category.description).toBe(description);
       expect(category.is_active).toBe(isActive);
+      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
     it('should create a category using factory method with minimum fields', () => {
@@ -165,6 +163,8 @@ describe('[Category Entity]', () => {
       // Assert
       expect(category).toBeInstanceOf(Category);
       expect(category.name).toBe(name);
+      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
     it('should set is_active to true by default', () => {
@@ -176,6 +176,7 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.is_active).toBe(true);
+      expect(mockValidate).toHaveBeenCalledWith(category);
     });
 
     it('should generate id automatically as Uuid instance', () => {
@@ -189,21 +190,55 @@ describe('[Category Entity]', () => {
       expect(category.id).toBeInstanceOf(Uuid);
       expect(category.id.value).toBeDefined();
       expect(typeof category.id.value).toBe('string');
+      expect(mockValidate).toHaveBeenCalledWith(category);
     });
 
-    it('should throw an error if name is invalid', () => {
+    it('should throw an error if name is invalid (empty string)', () => {
       // Arrange
       const name = '' as any;
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = { name: ['name should not be empty'] };
 
       // Act & Assert
       expect(() => {
         Category.create({ name });
-      }).toThrow();
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
+    });
+
+    it('should throw an error if name is too short (less than 3 characters)', () => {
+      // Arrange
+      const name = 'AB'; // Menor que 3 caracteres
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = {
+        name: ['name must be longer than or equal to 3 characters'],
+      };
+
+      // Act & Assert
+      expect(() => {
+        Category.create({ name });
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
+    });
+
+    it('should throw an error if name is too long (more than 255 characters)', () => {
+      // Arrange
+      const name = 'A'.repeat(256); // Mais de 255 caracteres
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = {
+        name: ['name must be shorter than or equal to 255 characters'],
+      };
+
+      // Act & Assert
+      expect(() => {
+        Category.create({ name });
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
     });
   });
 
   describe('[changeName]', () => {
-    it('should change the category name', () => {
+    it('should change the category name and call validator', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const newName = 'Updated Name';
@@ -213,9 +248,11 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.name).toBe(newName);
+      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
-    it('should accept any valid string as name', () => {
+    it('should accept any valid string as name and call validator', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const validNames = [
@@ -229,9 +266,10 @@ describe('[Category Entity]', () => {
         category.changeName(name);
         expect(category.name).toBe(name);
       });
+      expect(mockValidate).toHaveBeenCalledTimes(validNames.length);
     });
 
-    it('should allow changing multiple times', () => {
+    it('should allow changing multiple times and call validator each time', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const firstChange = 'First Change';
@@ -243,44 +281,86 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.name).toBe(secondChange);
+      expect(mockValidate).toHaveBeenCalledTimes(2);
     });
 
     it('should throw an error if name is an empty string', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const emptyName = '';
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = { name: ['name should not be empty'] };
 
       // Act & Assert
       expect(() => {
         category.changeName(emptyName);
-      }).toThrow();
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
     });
 
     it('should throw an error if name is undefined', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const name = undefined as any;
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = { name: ['name must be a string'] };
 
       // Act & Assert
       expect(() => {
         category.changeName(name);
-      }).toThrow();
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
     });
 
     it('should throw an error if name is null', () => {
       // Arrange
       const category = new Category({ name: 'Original Name' });
       const name = null as any;
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = { name: ['name should not be empty'] };
 
       // Act & Assert
       expect(() => {
         category.changeName(name);
-      }).toThrow();
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
+    });
+
+    it('should throw an error if name is too short (less than 3 characters)', () => {
+      // Arrange
+      const category = new Category({ name: 'Original Name' });
+      const shortName = 'AB'; // Menor que 3 caracteres
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = {
+        name: ['name must be longer than or equal to 3 characters'],
+      };
+
+      // Act & Assert
+      expect(() => {
+        category.changeName(shortName);
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
+    });
+
+    it('should throw an error if name is too long (more than 255 characters)', () => {
+      // Arrange
+      const category = new Category({ name: 'Original Name' });
+      const longName = 'A'.repeat(256); // Mais de 255 caracteres
+      mockValidate.mockReturnValue(false);
+      mockValidator.errors = {
+        name: ['name must be shorter than or equal to 255 characters'],
+      };
+
+      // Act & Assert
+      expect(() => {
+        category.changeName(longName);
+      }).toThrow(EntityValidationError);
+      expect(mockValidate).toHaveBeenCalled();
     });
   });
 
   describe('[changeDescription]', () => {
-    it('should change the category description', () => {
+    it('should change the category description and call validator', () => {
       // Arrange
       const category = new Category({ name: 'Test' });
       const newDescription = 'Updated Description';
@@ -290,9 +370,11 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.description).toBe(newDescription);
+      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
-    it('should allow empty description', () => {
+    it('should allow empty description and call validator', () => {
       // Arrange
       const category = new Category({ name: 'Test' });
       const emptyDescription = '';
@@ -302,9 +384,10 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.description).toBe(emptyDescription);
+      expect(mockValidate).toHaveBeenCalledWith(category);
     });
 
-    it('should allow changing multiple times', () => {
+    it('should allow changing multiple times and call validator each time', () => {
       // Arrange
       const category = new Category({ name: 'Test' });
       const firstChange = 'First Description';
@@ -316,6 +399,7 @@ describe('[Category Entity]', () => {
 
       // Assert
       expect(category.description).toBe(secondChange);
+      expect(mockValidate).toHaveBeenCalledTimes(2);
     });
   });
 
