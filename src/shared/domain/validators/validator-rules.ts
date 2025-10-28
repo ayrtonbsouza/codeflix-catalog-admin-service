@@ -1,4 +1,4 @@
-import { ValidationError } from './validation.error';
+import { ValidationError } from '@/shared/domain/validators/validation.error';
 
 export class ValidatorRules {
   private constructor(
