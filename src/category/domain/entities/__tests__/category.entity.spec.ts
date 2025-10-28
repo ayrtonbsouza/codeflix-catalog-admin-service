@@ -1,4 +1,4 @@
-import { Category } from "@/category/domain/category.entity";
+import { Category } from "@/category/domain/entities/category.entity";
 
 describe('[Category Entity]', () => {
   describe('[constructor]', () => {
