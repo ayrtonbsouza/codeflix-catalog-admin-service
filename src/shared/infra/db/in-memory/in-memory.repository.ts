@@ -1,5 +1,6 @@
 import type { Entity } from '@/shared/domain/abstract/entity';
 import type { ValueObject } from '@/shared/domain/abstract/value-object';
+import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import type { IRepository } from '@/shared/domain/repositories/repository.interface';
 
 export abstract class InMemoryRepository<
@@ -35,7 +36,7 @@ export abstract class InMemoryRepository<
       item.entity_id.equals(entity.entity_id),
     );
     if (foundIndex === -1) {
-      throw new Error('Entity not found');
+      throw new NotFoundError(entity.entity_id, this.getEntity());
     }
     this.entities[foundIndex] = entity;
     return Promise.resolve();
@@ -46,7 +47,7 @@ export abstract class InMemoryRepository<
       item.entity_id.equals(id),
     );
     if (foundIndex === -1) {
-      throw new Error('Entity not found');
+      throw new NotFoundError(id, this.getEntity());
     }
     this.entities.splice(foundIndex, 1);
     return Promise.resolve();

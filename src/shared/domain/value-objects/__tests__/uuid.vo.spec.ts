@@ -241,6 +241,63 @@ describe('[Uuid Value Object]', () => {
     });
   });
 
+  describe('[toString]', () => {
+    it('should return the UUID string value', () => {
+      // Arrange
+      const validUuid = '123e4567-e89b-12d3-a456-426614174000';
+
+      // Act
+      const uuid = new Uuid(validUuid);
+
+      // Assert
+      expect(uuid.toString()).toBe(validUuid);
+      expect(typeof uuid.toString()).toBe('string');
+    });
+
+    it('should return the same value as the value property', () => {
+      // Arrange
+      const validUuid = '123e4567-e89b-12d3-a456-426614174000';
+
+      // Act
+      const uuid = new Uuid(validUuid);
+
+      // Assert
+      expect(uuid.toString()).toBe(uuid.value);
+    });
+
+    it('should return a valid UUID string when generated automatically', () => {
+      // Arrange & Act
+      const uuid = new Uuid();
+
+      // Assert
+      expect(uuid.toString()).toBeDefined();
+      expect(typeof uuid.toString()).toBe('string');
+      expect(uuidValidate(uuid.toString())).toBe(true);
+    });
+
+    it('should return different values for different UUID instances', () => {
+      // Arrange & Act
+      const uuid1 = new Uuid();
+      const uuid2 = new Uuid();
+
+      // Assert
+      expect(uuid1.toString()).not.toBe(uuid2.toString());
+    });
+
+    it('should return the exact same value on multiple calls', () => {
+      // Arrange
+      const validUuid = '550e8400-e29b-41d4-a716-446655440000';
+
+      // Act
+      const uuid = new Uuid(validUuid);
+
+      // Assert
+      expect(uuid.toString()).toBe(validUuid);
+      expect(uuid.toString()).toBe(validUuid);
+      expect(uuid.toString()).toBe(validUuid);
+    });
+  });
+
   describe('[value]', () => {
     it('should return the UUID string value', () => {
       // Arrange
