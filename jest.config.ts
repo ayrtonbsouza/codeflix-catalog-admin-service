@@ -10,6 +10,7 @@ const config: Config = {
     '!**/*.d.ts',
     '!**/*.config.ts',
     '!**/*.interface.ts',
+    '!**/*.error.ts',
     '!**/node_modules/**',
     '!**/dist/**',
     '!**/__tests__/**',
