@@ -62,6 +62,7 @@ export default tseslint.config(
           },
         },
       ],
+      '@typescript-eslint/unbound-method': 'off',
       camelcase: 'off',
       'class-methods-use-this': 'off',
       'dot-notation': 'off',

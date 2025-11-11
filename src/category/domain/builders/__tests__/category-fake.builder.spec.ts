@@ -247,9 +247,8 @@ describe('[CategoryFakeBuilder]', () => {
 
     it('should return builder instance for chaining', () => {
       // Arrange & Act
-      const builder = CategoryFakeBuilder.createCategory().withDescription(
-        'Test',
-      );
+      const builder =
+        CategoryFakeBuilder.createCategory().withDescription('Test');
 
       // Assert
       expect(builder).toBeInstanceOf(CategoryFakeBuilder);
@@ -355,9 +354,8 @@ describe('[CategoryFakeBuilder]', () => {
       const customDate = new Date();
 
       // Act
-      const builder = CategoryFakeBuilder.createCategory().withCreatedAt(
-        customDate,
-      );
+      const builder =
+        CategoryFakeBuilder.createCategory().withCreatedAt(customDate);
 
       // Assert
       expect(builder).toBeInstanceOf(CategoryFakeBuilder);
@@ -404,9 +402,8 @@ describe('[CategoryFakeBuilder]', () => {
       it('should return the UUID value when set', () => {
         // Arrange
         const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
-        const builder = CategoryFakeBuilder.createCategory().withUuid(
-          customUuid,
-        );
+        const builder =
+          CategoryFakeBuilder.createCategory().withUuid(customUuid);
 
         // Act
         const id = builder.id;
@@ -421,7 +418,6 @@ describe('[CategoryFakeBuilder]', () => {
 
         // Act & Assert
         expect(() => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const _id = builder.id;
         }).toThrow('Property id not found in CategoryFakeBuilder');
       });
@@ -431,9 +427,8 @@ describe('[CategoryFakeBuilder]', () => {
       it('should return the name value', () => {
         // Arrange
         const customName = 'Custom Name';
-        const builder = CategoryFakeBuilder.createCategory().withName(
-          customName,
-        );
+        const builder =
+          CategoryFakeBuilder.createCategory().withName(customName);
 
         // Act
         const name = builder.name;
@@ -459,9 +454,10 @@ describe('[CategoryFakeBuilder]', () => {
       it('should return the description value', () => {
         // Arrange
         const customDescription = 'Custom Description';
-        const builder = CategoryFakeBuilder.createCategory().withDescription(
-          customDescription,
-        );
+        const builder =
+          CategoryFakeBuilder.createCategory().withDescription(
+            customDescription,
+          );
 
         // Act
         const description = builder.description;
@@ -521,9 +517,8 @@ describe('[CategoryFakeBuilder]', () => {
       it('should return the created_at value when set', () => {
         // Arrange
         const customDate = new Date('2024-01-01');
-        const builder = CategoryFakeBuilder.createCategory().withCreatedAt(
-          customDate,
-        );
+        const builder =
+          CategoryFakeBuilder.createCategory().withCreatedAt(customDate);
 
         // Act
         const createdAt = builder.created_at;
@@ -538,11 +533,8 @@ describe('[CategoryFakeBuilder]', () => {
 
         // Act & Assert
         expect(() => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const _createdAt = builder.created_at;
-        }).toThrow(
-          'Property created_at not found in CategoryFakeBuilder',
-        );
+        }).toThrow('Property created_at not found in CategoryFakeBuilder');
       });
     });
   });
@@ -653,4 +645,3 @@ describe('[CategoryFakeBuilder]', () => {
     });
   });
 });
-
