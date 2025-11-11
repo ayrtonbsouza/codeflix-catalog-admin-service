@@ -704,4 +704,98 @@ describe('[Category Entity]', () => {
       expect(category1.id.value).not.toBe(category2.id.value);
     });
   });
+
+  describe('[fake]', () => {
+    it('should return CategoryFakeBuilder class', () => {
+      // Arrange & Act
+      const FakeBuilder = Category.fake();
+
+      // Assert
+      expect(FakeBuilder).toBeDefined();
+      expect(FakeBuilder.createCategory).toBeDefined();
+      expect(typeof FakeBuilder.createCategory).toBe('function');
+      expect(FakeBuilder.createManyCategories).toBeDefined();
+      expect(typeof FakeBuilder.createManyCategories).toBe('function');
+    });
+
+    it('should allow creating a single fake category using fake()', () => {
+      // Arrange & Act
+      const category = Category.fake().createCategory().build();
+
+      // Assert
+      expect(category).toBeInstanceOf(Category);
+      expect(category.name).toBeDefined();
+      expect(typeof category.name).toBe('string');
+      expect(category.id).toBeInstanceOf(Uuid);
+      expect(category.is_active).toBe(true);
+    });
+
+    it('should allow creating multiple fake categories using fake()', () => {
+      // Arrange & Act
+      const categories = Category.fake().createManyCategories(3).build();
+
+      // Assert
+      expect(Array.isArray(categories)).toBe(true);
+      expect(categories).toHaveLength(3);
+      categories.forEach((category) => {
+        expect(category).toBeInstanceOf(Category);
+        expect(category.name).toBeDefined();
+      });
+    });
+
+    it('should allow chaining fake builder methods', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const customName = 'Fake Category';
+      const customDescription = 'Fake Description';
+
+      // Act
+      const category = Category.fake()
+        .createCategory()
+        .withUuid(customUuid)
+        .withName(customName)
+        .withDescription(customDescription)
+        .deactivate()
+        .build();
+
+      // Assert
+      expect(category).toBeInstanceOf(Category);
+      expect(category.id).toBe(customUuid);
+      expect(category.name).toBe(customName);
+      expect(category.description).toBe(customDescription);
+      expect(category.is_active).toBe(false);
+    });
+
+    it('should create valid categories that can be used in tests', () => {
+      // Arrange & Act
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test Category')
+        .activate()
+        .build();
+
+      // Assert
+      expect(category).toBeInstanceOf(Category);
+      expect(category.name).toBe('Test Category');
+      expect(category.is_active).toBe(true);
+      expect(category.id).toBeInstanceOf(Uuid);
+      expect(category.created_at).toBeInstanceOf(Date);
+    });
+
+    it('should allow creating categories with factory functions', () => {
+      // Arrange
+      const names = ['Category A', 'Category B', 'Category C'];
+
+      // Act
+      const categories = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => names[index])
+        .build();
+
+      // Assert
+      expect(categories[0].name).toBe('Category A');
+      expect(categories[1].name).toBe('Category B');
+      expect(categories[2].name).toBe('Category C');
+    });
+  });
 });

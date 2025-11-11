@@ -8,7 +8,6 @@ const config: Config = {
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/*.d.ts',
-    '!**/*.builder.ts',
     '!**/*.config.ts',
     '!**/*.interface.ts',
     '!**/*.error.ts',
