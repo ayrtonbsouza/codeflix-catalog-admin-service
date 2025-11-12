@@ -48,7 +48,7 @@ class EntityStub extends Entity {
   }
 }
 
-describe('[Entity Abstract Class]', () => {
+describe('Unit: [Entity Abstract Class]', () => {
   beforeEach(() => {
     callCount = 0;
     jest.clearAllMocks();

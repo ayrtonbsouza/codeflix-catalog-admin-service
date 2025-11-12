@@ -94,7 +94,7 @@ class TestInMemorySearchableRepository extends InMemorySearchableRepository<
   }
 }
 
-describe('[InMemoryRepository]', () => {
+describe('Unit: [InMemoryRepository]', () => {
   let repository: TestInMemoryRepository;
 
   beforeEach(() => {
@@ -251,7 +251,7 @@ describe('[InMemoryRepository]', () => {
   });
 });
 
-describe('[InMemorySearchableRepository]', () => {
+describe('Unit: [InMemorySearchableRepository]', () => {
   let repository: TestInMemorySearchableRepository;
 
   beforeEach(() => {

@@ -10,7 +10,7 @@ class TestDTO {
 
 class SimpleStub extends ClassValidatorFields<TestDTO> {}
 
-describe('[ClassValidatorFields]', () => {
+describe('Unit: [ClassValidatorFields]', () => {
   let validator: SimpleStub;
 
   beforeEach(() => {

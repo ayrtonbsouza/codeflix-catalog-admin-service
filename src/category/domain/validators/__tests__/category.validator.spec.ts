@@ -24,7 +24,7 @@ jest.mock('uuid', () => ({
   }),
 }));
 
-describe('[Category Validator]', () => {
+describe('Unit: [Category Validator]', () => {
   let validator: CategoryValidator;
 
   beforeEach(() => {

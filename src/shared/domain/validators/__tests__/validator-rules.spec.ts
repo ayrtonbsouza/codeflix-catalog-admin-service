@@ -4,7 +4,7 @@ import {
 } from '@/shared/domain/validators/validator-rules';
 import { ValidationError } from '@/shared/domain/validators/validation.error';
 
-describe('[ValidatorRules]', () => {
+describe('Unit: [ValidatorRules]', () => {
   describe('[values]', () => {
     it('should create an instance with value and property', () => {
       // Arrange
@@ -33,7 +33,7 @@ describe('[ValidatorRules]', () => {
 
     it('should throw ValidationError when value is null', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const property = 'name';
 
       // Act & Assert
@@ -47,7 +47,7 @@ describe('[ValidatorRules]', () => {
 
     it('should throw ValidationError when value is undefined', () => {
       // Arrange
-      const value = undefined;
+      const value: undefined = undefined;
       const property = 'name';
 
       // Act & Assert
@@ -100,7 +100,7 @@ describe('[ValidatorRules]', () => {
 
     it('should pass when value is null (empty values should not be validated)', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const property = 'name';
 
       // Act & Assert
@@ -111,7 +111,7 @@ describe('[ValidatorRules]', () => {
 
     it('should pass when value is undefined (empty values should not be validated)', () => {
       // Arrange
-      const value = undefined;
+      const value: undefined = undefined;
       const property = 'name';
 
       // Act & Assert
@@ -212,14 +212,12 @@ describe('[ValidatorRules]', () => {
       }).toThrow(ValidationError);
       expect(() => {
         ValidatorRules.values(value, property).maxLength(max);
-      }).toThrow(
-        'The name must be less or equal than 3 characters',
-      );
+      }).toThrow('The name must be less or equal than 3 characters');
     });
 
     it('should pass when value is null (empty values should not be validated)', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const max = 10;
       const property = 'name';
 
@@ -231,7 +229,7 @@ describe('[ValidatorRules]', () => {
 
     it('should pass when value is undefined (empty values should not be validated)', () => {
       // Arrange
-      const value = undefined;
+      const value: undefined = undefined;
       const max = 10;
       const property = 'name';
 
@@ -295,7 +293,7 @@ describe('[ValidatorRules]', () => {
 
     it('should pass when value is null (empty values should not be validated)', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const property = 'is_active';
 
       // Act & Assert
@@ -306,7 +304,7 @@ describe('[ValidatorRules]', () => {
 
     it('should pass when value is undefined (empty values should not be validated)', () => {
       // Arrange
-      const value = undefined;
+      const value: undefined = undefined;
       const property = 'is_active';
 
       // Act & Assert
@@ -387,7 +385,7 @@ describe('[ValidatorRules]', () => {
 
     it('should throw on first failure in chain', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const property = 'name';
 
       // Act & Assert
@@ -426,16 +424,10 @@ describe('[ValidatorRules]', () => {
 
       // Act & Assert
       expect(() => {
-        ValidatorRules.values(value, property)
-          .required()
-          .string()
-          .maxLength(5);
+        ValidatorRules.values(value, property).required().string().maxLength(5);
       }).toThrow(ValidationError);
       expect(() => {
-        ValidatorRules.values(value, property)
-          .required()
-          .string()
-          .maxLength(5);
+        ValidatorRules.values(value, property).required().string().maxLength(5);
       }).toThrow('The name must be less or equal than 5 characters');
     });
   });
@@ -465,7 +457,7 @@ describe('[ValidatorRules]', () => {
 
     it('should handle property name with spaces', () => {
       // Arrange
-      const value = null;
+      const value: null = null;
       const property = 'field name';
 
       // Act & Assert
@@ -479,7 +471,7 @@ describe('[ValidatorRules]', () => {
 describe('[isEmpty function]', () => {
   it('should return true when value is undefined', () => {
     // Arrange
-    const value = undefined;
+    const value: undefined = undefined;
 
     // Act
     const result = isEmpty(value);
@@ -490,7 +482,7 @@ describe('[isEmpty function]', () => {
 
   it('should return true when value is null', () => {
     // Arrange
-    const value = null;
+    const value: null = null;
 
     // Act
     const result = isEmpty(value);
@@ -545,7 +537,7 @@ describe('[isEmpty function]', () => {
 
   it('should return false when value is an array', () => {
     // Arrange
-    const value = [];
+    const value: unknown[] = [];
 
     // Act
     const result = isEmpty(value);
@@ -576,4 +568,3 @@ describe('[isEmpty function]', () => {
     expect(result).toBe(false);
   });
 });
-

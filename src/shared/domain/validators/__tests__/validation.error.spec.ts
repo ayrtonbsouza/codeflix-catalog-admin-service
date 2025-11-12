@@ -8,7 +8,7 @@ import {
 
 class BaseValidationErrorStub extends BaseValidationError {}
 
-describe('[Validation Error]', () => {
+describe('Unit: [Validation Error]', () => {
   describe('[BaseValidationError]', () => {
     it('should create an instance with default message', () => {
       // Arrange

@@ -24,7 +24,7 @@ jest.mock('uuid', () => ({
   }),
 }));
 
-describe('[Uuid Value Object]', () => {
+describe('Unit: [Uuid Value Object]', () => {
   beforeEach(() => {
     callCount = 0;
     jest.clearAllMocks();

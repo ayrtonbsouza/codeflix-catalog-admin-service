@@ -10,7 +10,7 @@ import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import { SearchParams } from '@/shared/domain/repositories/search-params';
 import { SearchResult } from '@/shared/domain/repositories/search-result';
 
-describe('[CategoryInMemoryRepository]', () => {
+describe('Unit: [CategoryInMemoryRepository]', () => {
   let repository: CategoryInMemoryRepository;
 
   beforeEach(() => {

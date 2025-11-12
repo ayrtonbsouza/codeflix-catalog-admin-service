@@ -193,6 +193,27 @@ else
     echo "✗ ZSH not found"
 fi
 
+echo "• Installing project dependencies..."
+if [ -f "package.json" ]; then
+    if [ ! -f ".npmrc" ] || ! grep -q "ignore-scripts=false" .npmrc 2>/dev/null; then
+        echo "  • Configuring .npmrc to allow build scripts..."
+        echo "ignore-scripts=false" >> .npmrc 2>/dev/null || true
+    fi
+
+    pnpm install || true
+
+    echo "• Configuring sqlite3 native bindings..."
+
+    echo "  • Rebuilding sqlite3 native bindings..."
+    pnpm rebuild sqlite3 2>&1 | grep -v "WARN" || {
+        echo "  ⚠ sqlite3 rebuild may have failed."
+        echo "  If tests fail, run 'pnpm approve-builds' and select sqlite3, then 'pnpm rebuild sqlite3'"
+    }
+    echo "✓ Dependencies installed"
+else
+    echo "  ⚠ No package.json found, skipping dependency installation"
+fi
+
 echo ""
 echo "=== Setup completed successfully! ==="
 echo "ZSH and all plugins are ready to use!"

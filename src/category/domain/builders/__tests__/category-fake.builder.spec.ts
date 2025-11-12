@@ -25,7 +25,7 @@ jest.mock('uuid', () => ({
   }),
 }));
 
-describe('[CategoryFakeBuilder]', () => {
+describe('Unit: [CategoryFakeBuilder]', () => {
   beforeEach(() => {
     callCount = 0;
     jest.clearAllMocks();

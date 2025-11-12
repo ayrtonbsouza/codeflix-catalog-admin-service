@@ -22,7 +22,7 @@ class ComplexValueObject extends ValueObject {
   }
 }
 
-describe('[Value Object Abstract Class]', () => {
+describe('Unit: [Value Object Abstract Class]', () => {
   describe('[equals]', () => {
     it('should return true when objects are equal (same class and same properties)', () => {
       // Arrange

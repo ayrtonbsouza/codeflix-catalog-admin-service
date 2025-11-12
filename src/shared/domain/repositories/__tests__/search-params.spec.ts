@@ -3,7 +3,7 @@ import {
   type SortDirection,
 } from '@/shared/domain/repositories/search-params';
 
-describe('[SearchParams]', () => {
+describe('Unit: [SearchParams]', () => {
   describe('[constructor]', () => {
     it('should create SearchParams with default values when no props provided', () => {
       // Arrange & Act

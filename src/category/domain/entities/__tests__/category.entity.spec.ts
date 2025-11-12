@@ -44,7 +44,7 @@ jest.mock('@/category/domain/validators/category.validator', () => {
   };
 });
 
-describe('[Category Entity]', () => {
+describe('Unit: [Category Entity]', () => {
   beforeEach(() => {
     mockValidate.mockReturnValue(true);
     mockValidator.errors = null;

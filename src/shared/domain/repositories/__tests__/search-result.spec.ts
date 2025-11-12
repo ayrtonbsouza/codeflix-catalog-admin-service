@@ -50,7 +50,7 @@ class EntityStub extends Entity {
   }
 }
 
-describe('[SearchResult]', () => {
+describe('Unit: [SearchResult]', () => {
   beforeEach(() => {
     callCount = 0;
     jest.clearAllMocks();
