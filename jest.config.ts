@@ -33,7 +33,7 @@ const config: Config = {
     '<rootDir>/../src/shared/infra/testing/except-helpers.ts',
   ],
   transform: {
-    '^.+\\.(t|j)sx?$': [
+    '^.+\\.tsx?$': [
       '@swc/jest',
       {
         jsc: {
@@ -46,10 +46,28 @@ const config: Config = {
             legacyDecorator: true,
           },
         },
+        module: {
+          type: 'es6',
+        },
+      },
+    ],
+    '^.+\\.js$': [
+      '@swc/jest',
+      {
+        jsc: {
+          target: 'es2022',
+          parser: {
+            syntax: 'ecmascript',
+          },
+        },
+        module: {
+          type: 'commonjs',
+        },
       },
     ],
   },
-  transformIgnorePatterns: ['node_modules/(?!.*uuid.*)'],
+  transformIgnorePatterns: ['node_modules/(?!(uuid|.pnpm/uuid@))'],
+  testEnvironment: 'node',
 };
 
 export default config;
