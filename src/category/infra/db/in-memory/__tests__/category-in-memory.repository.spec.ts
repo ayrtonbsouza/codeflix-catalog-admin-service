@@ -31,7 +31,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return the entity when it exists', async () => {
       // Arrange
-      const entity = new Category({ name: 'Test Category' });
+      const entity = Category.fake()
+        .createCategory()
+        .withName('Test Category')
+        .build();
       await repository.insert(entity);
 
       // Act
@@ -55,10 +58,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return all entities after insertions', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Category A' }),
-        new Category({ name: 'Category B' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(2)
+        .withName((index) => ['Category A', 'Category B'][index])
+        .build();
       await repository.bulkInsert(entities);
 
       // Act
@@ -75,7 +78,10 @@ describe('[CategoryInMemoryRepository]', () => {
   describe('[insert]', () => {
     it('should insert an entity', async () => {
       // Arrange
-      const entity = new Category({ name: 'New Category' });
+      const entity = Category.fake()
+        .createCategory()
+        .withName('New Category')
+        .build();
 
       // Act
       await repository.insert(entity);
@@ -90,11 +96,10 @@ describe('[CategoryInMemoryRepository]', () => {
   describe('[bulkInsert]', () => {
     it('should insert multiple entities', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Category 1' }),
-        new Category({ name: 'Category 2' }),
-        new Category({ name: 'Category 3' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => `Category ${index + 1}`)
+        .build();
 
       // Act
       await repository.bulkInsert(entities);
@@ -111,7 +116,10 @@ describe('[CategoryInMemoryRepository]', () => {
   describe('[update]', () => {
     it('should throw NotFoundError when entity does not exist', async () => {
       // Arrange
-      const entity = new Category({ name: 'Non-existent' });
+      const entity = Category.fake()
+        .createCategory()
+        .withName('Non-existent')
+        .build();
 
       // Act & Assert
       await expect(repository.update(entity)).rejects.toBeInstanceOf(
@@ -124,9 +132,16 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should update existing entity', async () => {
       // Arrange
-      const entity = new Category({ name: 'Before' });
+      const entity = Category.fake()
+        .createCategory()
+        .withName('Before')
+        .build();
       await repository.insert(entity);
-      const updated = new Category({ id: entity.id, name: 'After' });
+      const updated = Category.fake()
+        .createCategory()
+        .withUuid(entity.id)
+        .withName('After')
+        .build();
 
       // Act
       await repository.update(updated);
@@ -152,7 +167,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should remove existing entity', async () => {
       // Arrange
-      const entity = new Category({ name: 'Remove' });
+      const entity = Category.fake()
+        .createCategory()
+        .withName('Remove')
+        .build();
       await repository.insert(entity);
 
       // Act
@@ -185,11 +203,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return all entities when there is no filter', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Category A' }),
-        new Category({ name: 'Category B' }),
-        new Category({ name: 'Category C' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category A', 'Category B', 'Category C'][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams();
 
@@ -205,11 +222,12 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should filter entities by name correctly', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Action Movies' }),
-        new Category({ name: 'Comedy Movies' }),
-        new Category({ name: 'Action Games' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) => ['Action Movies', 'Comedy Movies', 'Action Games'][index],
+        )
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({ filter: 'action' });
 
@@ -228,11 +246,12 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should filter entities by name case-insensitively', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Action Movies' }),
-        new Category({ name: 'Comedy Movies' }),
-        new Category({ name: 'ACTION GAMES' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) => ['Action Movies', 'Comedy Movies', 'ACTION GAMES'][index],
+        )
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({ filter: 'ACTION' });
 
@@ -246,10 +265,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return empty list when filter finds nothing', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Action Movies' }),
-        new Category({ name: 'Comedy Movies' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(2)
+        .withName((index) => ['Action Movies', 'Comedy Movies'][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({ filter: 'Horror' });
 
@@ -263,11 +282,13 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should sort entities by name in ascending order', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Zebra Category' }),
-        new Category({ name: 'Apple Category' }),
-        new Category({ name: 'Banana Category' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) =>
+            ['Zebra Category', 'Apple Category', 'Banana Category'][index],
+        )
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: 'name',
@@ -286,11 +307,13 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should sort entities by name in descending order', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Apple Category' }),
-        new Category({ name: 'Banana Category' }),
-        new Category({ name: 'Zebra Category' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) =>
+            ['Apple Category', 'Banana Category', 'Zebra Category'][index],
+        )
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: 'name',
@@ -312,11 +335,11 @@ describe('[CategoryInMemoryRepository]', () => {
       const date1 = new Date('2024-01-01');
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
-      const entities = [
-        new Category({ name: 'Category C', created_at: date3 }),
-        new Category({ name: 'Category A', created_at: date1 }),
-        new Category({ name: 'Category B', created_at: date2 }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category C', 'Category A', 'Category B'][index])
+        .withCreatedAt((index) => [date3, date1, date2][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: 'created_at',
@@ -338,11 +361,11 @@ describe('[CategoryInMemoryRepository]', () => {
       const date1 = new Date('2024-01-01');
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
-      const entities = [
-        new Category({ name: 'Category A', created_at: date1 }),
-        new Category({ name: 'Category B', created_at: date2 }),
-        new Category({ name: 'Category C', created_at: date3 }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category A', 'Category B', 'Category C'][index])
+        .withCreatedAt((index) => [date1, date2, date3][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: 'created_at',
@@ -364,11 +387,11 @@ describe('[CategoryInMemoryRepository]', () => {
       const date1 = new Date('2024-01-01');
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
-      const entities = [
-        new Category({ name: 'Category A', created_at: date1 }),
-        new Category({ name: 'Category B', created_at: date2 }),
-        new Category({ name: 'Category C', created_at: date3 }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category A', 'Category B', 'Category C'][index])
+        .withCreatedAt((index) => [date1, date2, date3][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: null,
@@ -387,11 +410,13 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should not sort when field is not in sortableFields', async () => {
       // Arrange
-      const entities = [
-        new Category({ name: 'Zebra Category' }),
-        new Category({ name: 'Apple Category' }),
-        new Category({ name: 'Banana Category' }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) =>
+            ['Zebra Category', 'Apple Category', 'Banana Category'][index],
+        )
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         sort: 'invalid_field',
@@ -410,10 +435,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should paginate results correctly', async () => {
       // Arrange
-      const entities = Array.from(
-        { length: 25 },
-        (_, i) => new Category({ name: `Category ${i + 1}` }),
-      );
+      const entities = Category.fake()
+        .createManyCategories(25)
+        .withName((index) => `Category ${index + 1}`)
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         page: 2,
@@ -433,10 +458,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return empty page when page does not exist', async () => {
       // Arrange
-      const entities = Array.from(
-        { length: 10 },
-        (_, i) => new Category({ name: `Category ${i + 1}` }),
-      );
+      const entities = Category.fake()
+        .createManyCategories(10)
+        .withName((index) => `Category ${index + 1}`)
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         page: 5,
@@ -460,13 +485,20 @@ describe('[CategoryInMemoryRepository]', () => {
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
       const date4 = new Date('2024-01-04');
-      const entities = [
-        new Category({ name: 'Action Movie', created_at: date1 }),
-        new Category({ name: 'Action Game', created_at: date2 }),
-        new Category({ name: 'Comedy Movie', created_at: date3 }),
-        new Category({ name: 'Action Series', created_at: date4 }),
-        new Category({ name: 'Horror Movie', created_at: date2 }),
-      ];
+      const entities = Category.fake()
+        .createManyCategories(5)
+        .withName(
+          (index) =>
+            [
+              'Action Movie',
+              'Action Game',
+              'Comedy Movie',
+              'Action Series',
+              'Horror Movie',
+            ][index],
+        )
+        .withCreatedAt((index) => [date1, date2, date3, date4, date2][index])
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         filter: 'action',
@@ -481,7 +513,7 @@ describe('[CategoryInMemoryRepository]', () => {
 
       // Assert
       expect(result.items).toHaveLength(2);
-      expect(result.total).toBe(3); // Total of "Action"
+      expect(result.total).toBe(3);
       expect(result.current_page).toBe(1);
       expect(result.per_page).toBe(2);
       expect(result.items[0].name).toBe('Action Movie');
@@ -490,10 +522,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return last page correctly when there is remainder in division', async () => {
       // Arrange
-      const entities = Array.from(
-        { length: 23 },
-        (_, i) => new Category({ name: `Category ${i + 1}` }),
-      );
+      const entities = Category.fake()
+        .createManyCategories(23)
+        .withName((index) => `Category ${index + 1}`)
+        .build();
       await repository.bulkInsert(entities);
       const searchParams = new SearchParams({
         page: 3,
@@ -515,10 +547,10 @@ describe('[CategoryInMemoryRepository]', () => {
   describe('[applyFilter]', () => {
     it('should return all items when filter is empty', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'Category A' }),
-        new Category({ name: 'Category B' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(2)
+        .withName((index) => ['Category A', 'Category B'][index])
+        .build();
 
       // Act
       const result = await repository['applyFilter'](items, '');
@@ -530,7 +562,9 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should no filter items when filter object is null', async () => {
       // Arrange
-      const items = [new Category({ name: 'Category A' })];
+      const items = [
+        Category.fake().createCategory().withName('Category A').build(),
+      ];
       const filterSpy = jest.spyOn(items, 'filter' as any);
 
       // Act
@@ -543,10 +577,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should return all items when filter is null', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'Category A' }),
-        new Category({ name: 'Category B' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(2)
+        .withName((index) => ['Category A', 'Category B'][index])
+        .build();
 
       // Act
       const result = await repository['applyFilter'](items, null as any);
@@ -558,11 +592,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should filter items using filter parameter', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'test' }),
-        new Category({ name: 'TEST' }),
-        new Category({ name: 'fake' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['test', 'TEST', 'fake'][index])
+        .build();
       const filterSpy = jest.spyOn(items, 'filter' as any);
 
       // Act
@@ -575,11 +608,12 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should filter items by name case-insensitively', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'Action Movies' }),
-        new Category({ name: 'Comedy Movies' }),
-        new Category({ name: 'ACTION GAMES' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) => ['Action Movies', 'Comedy Movies', 'ACTION GAMES'][index],
+        )
+        .build();
 
       // Act
       const result = await repository['applyFilter'](items, 'action');
@@ -596,20 +630,18 @@ describe('[CategoryInMemoryRepository]', () => {
     it('should sort by created_at when sort param is null', async () => {
       // Arrange
       const created_at = new Date();
-      const items = [
-        new Category({
-          name: 'test',
-          created_at: created_at,
-        }),
-        new Category({
-          name: 'TEST',
-          created_at: new Date(created_at.getTime() + 100),
-        }),
-        new Category({
-          name: 'fake',
-          created_at: new Date(created_at.getTime() + 200),
-        }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['test', 'TEST', 'fake'][index])
+        .withCreatedAt(
+          (index) =>
+            [
+              created_at,
+              new Date(created_at.getTime() + 100),
+              new Date(created_at.getTime() + 200),
+            ][index],
+        )
+        .build();
 
       // Act
       const itemsSorted = await repository['applySort'](items, null, null);
@@ -623,11 +655,11 @@ describe('[CategoryInMemoryRepository]', () => {
       const date1 = new Date('2024-01-01');
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
-      const items = [
-        new Category({ name: 'Category A', created_at: date1 }),
-        new Category({ name: 'Category B', created_at: date2 }),
-        new Category({ name: 'Category C', created_at: date3 }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category A', 'Category B', 'Category C'][index])
+        .withCreatedAt((index) => [date1, date2, date3][index])
+        .build();
 
       // Act
       const result = await repository['applySort'](items, null, 'asc');
@@ -641,11 +673,10 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should sort by name', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'c' }),
-        new Category({ name: 'b' }),
-        new Category({ name: 'a' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['c', 'b', 'a'][index])
+        .build();
 
       // Act & Assert
       let itemsSorted = await repository['applySort'](items, 'name', 'asc');
@@ -657,11 +688,13 @@ describe('[CategoryInMemoryRepository]', () => {
 
     it('should sort by name when sort is provided', async () => {
       // Arrange
-      const items = [
-        new Category({ name: 'Zebra Category' }),
-        new Category({ name: 'Apple Category' }),
-        new Category({ name: 'Banana Category' }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName(
+          (index) =>
+            ['Zebra Category', 'Apple Category', 'Banana Category'][index],
+        )
+        .build();
 
       // Act
       const result = await repository['applySort'](items, 'name', 'asc');
@@ -678,11 +711,11 @@ describe('[CategoryInMemoryRepository]', () => {
       const date1 = new Date('2024-01-01');
       const date2 = new Date('2024-01-02');
       const date3 = new Date('2024-01-03');
-      const items = [
-        new Category({ name: 'Category C', created_at: date3 }),
-        new Category({ name: 'Category A', created_at: date1 }),
-        new Category({ name: 'Category B', created_at: date2 }),
-      ];
+      const items = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => ['Category C', 'Category A', 'Category B'][index])
+        .withCreatedAt((index) => [date3, date1, date2][index])
+        .build();
 
       // Act
       const result = await repository['applySort'](items, 'created_at', 'asc');

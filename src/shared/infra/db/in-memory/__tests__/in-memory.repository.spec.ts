@@ -420,7 +420,7 @@ describe('[InMemorySearchableRepository]', () => {
 
       // Assert
       expect(result.items).toHaveLength(3);
-      // Order should be the same as insertion (not sorted)
+
       expect(result.items[0].name).toBe('Zebra');
       expect(result.items[1].name).toBe('Apple');
       expect(result.items[2].name).toBe('Banana');
@@ -443,7 +443,7 @@ describe('[InMemorySearchableRepository]', () => {
 
       // Assert
       expect(result.items).toHaveLength(2);
-      // Order should be the same as insertion
+
       expect(result.items[0].name).toBe('Zebra');
       expect(result.items[1].name).toBe('Apple');
     });
@@ -527,7 +527,7 @@ describe('[InMemorySearchableRepository]', () => {
 
       // Assert
       expect(result.items).toHaveLength(2);
-      expect(result.total).toBe(3); // Total of "Apple"
+      expect(result.total).toBe(3);
       expect(result.current_page).toBe(1);
       expect(result.per_page).toBe(2);
       expect(result.items[0].name).toBe('Apple Red');
@@ -678,7 +678,7 @@ describe('[InMemorySearchableRepository]', () => {
       ];
       const customGetter = (sort: string, item: TestEntityWithPrice) => {
         if (sort === 'price') {
-          return item.price * -1; // Invert values
+          return item.price * -1;
         }
         return item[sort as keyof TestEntityWithPrice];
       };
@@ -693,7 +693,6 @@ describe('[InMemorySearchableRepository]', () => {
 
       // Assert
       expect(result).toHaveLength(3);
-      // With inverted getter, order should be reversed
       expect(result[0].price).toBe(300);
       expect(result[1].price).toBe(200);
       expect(result[2].price).toBe(100);
@@ -712,11 +711,9 @@ describe('[InMemorySearchableRepository]', () => {
 
       // Assert
       expect(result).toHaveLength(3);
-      // When values are equal, order should remain stable (original order preserved)
       expect(result[0].price).toBe(100);
       expect(result[1].price).toBe(100);
       expect(result[2].price).toBe(100);
-      // All items should still be present
       expect(result.map((item) => item.name)).toContain('Apple');
       expect(result.map((item) => item.name)).toContain('Banana');
       expect(result.map((item) => item.name)).toContain('Cherry');

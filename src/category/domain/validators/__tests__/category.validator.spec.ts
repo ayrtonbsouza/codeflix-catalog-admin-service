@@ -256,7 +256,10 @@ describe('[Category Validator]', () => {
   describe('[validate - changeName method]', () => {
     it('should validate successfully with valid name', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const newName = 'Updated Name';
 
       // Act
@@ -271,7 +274,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when changing to empty name', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
 
       // Act
       category.name = '';
@@ -287,7 +293,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when changing to name shorter than 3 characters', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
 
       // Act
       category.name = 'AB';
@@ -303,7 +312,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when changing to name longer than 255 characters', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
 
       // Act
       category.name = 'A'.repeat(256);
@@ -319,7 +331,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when changing to non-string name', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
 
       // Act
       category.name = 123 as any;
@@ -335,7 +350,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when changing to null name', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
 
       // Act
       category.name = null as any;
@@ -353,7 +371,10 @@ describe('[Category Validator]', () => {
   describe('[validate - changeDescription method]', () => {
     it('should validate successfully with valid description', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
       const newDescription = 'Updated Description';
 
       // Act
@@ -368,7 +389,10 @@ describe('[Category Validator]', () => {
 
     it('should validate successfully with empty description', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
 
       // Act
       category.description = '';
@@ -381,7 +405,10 @@ describe('[Category Validator]', () => {
 
     it('should validate successfully with null description', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
 
       // Act
       category.description = null;
@@ -394,7 +421,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when description is not a string (number)', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
 
       // Act
       category.description = 123 as any;
@@ -410,7 +440,10 @@ describe('[Category Validator]', () => {
 
     it('should return false when description is not a string (object)', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
 
       // Act
       category.description = { value: 'test' } as any;
@@ -510,7 +543,10 @@ describe('[Category Validator]', () => {
       expect(validator.errors).not.toBeNull();
 
       // Act
-      const validCategory = new Category({ name: 'Valid Name' });
+      const validCategory = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
       validator.errors = null;
       validator.validatedData = null;
       const isValid = validator.validate(validCategory);
@@ -525,9 +561,10 @@ describe('[Category Validator]', () => {
   describe('[validate - reusability]', () => {
     it('should be able to validate multiple different categories', () => {
       // Arrange
-      const category1 = new Category({ name: 'Category 1' });
-      const category2 = new Category({ name: 'Category 2' });
-      const category3 = new Category({ name: 'Category 3' });
+      const [category1, category2, category3] = Category.fake()
+        .createManyCategories(3)
+        .withName((index) => `Category ${index + 1}`)
+        .build();
 
       // Act & Assert
       expect(validator.validate(category1)).toBe(true);
@@ -542,7 +579,10 @@ describe('[Category Validator]', () => {
 
     it('should validate same category multiple times', () => {
       // Arrange
-      const category = new Category({ name: 'Valid Category' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Valid Category')
+        .build();
 
       // Act & Assert
       expect(validator.validate(category)).toBe(true);

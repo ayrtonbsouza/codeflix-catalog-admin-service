@@ -240,7 +240,10 @@ describe('[Category Entity]', () => {
   describe('[changeName]', () => {
     it('should change the category name and call validator', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const newName = 'Updated Name';
 
       // Act
@@ -254,7 +257,10 @@ describe('[Category Entity]', () => {
 
     it('should accept any valid string as name and call validator', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const validNames = [
         'Short',
         'A Very Long Category Name With Spaces',
@@ -271,7 +277,10 @@ describe('[Category Entity]', () => {
 
     it('should allow changing multiple times and call validator each time', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const firstChange = 'First Change';
       const secondChange = 'Second Change';
 
@@ -286,7 +295,10 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is an empty string', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const emptyName = '';
       mockValidate.mockReturnValue(false);
       mockValidator.errors = { name: ['name should not be empty'] };
@@ -300,7 +312,10 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is undefined', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const name = undefined as any;
       mockValidate.mockReturnValue(false);
       mockValidator.errors = { name: ['name must be a string'] };
@@ -314,7 +329,10 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is null', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const name = null as any;
       mockValidate.mockReturnValue(false);
       mockValidator.errors = { name: ['name should not be empty'] };
@@ -328,7 +346,10 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is too short (less than 3 characters)', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const shortName = 'AB';
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
@@ -344,7 +365,10 @@ describe('[Category Entity]', () => {
 
     it('should throw an error if name is too long (more than 255 characters)', () => {
       // Arrange
-      const category = new Category({ name: 'Original Name' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .build();
       const longName = 'A'.repeat(256);
       mockValidate.mockReturnValue(false);
       mockValidator.errors = {
@@ -362,7 +386,10 @@ describe('[Category Entity]', () => {
   describe('[changeDescription]', () => {
     it('should change the category description and call validator', () => {
       // Arrange
-      const category = new Category({ name: 'Test' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .build();
       const newDescription = 'Updated Description';
 
       // Act
@@ -376,7 +403,10 @@ describe('[Category Entity]', () => {
 
     it('should allow empty description and call validator', () => {
       // Arrange
-      const category = new Category({ name: 'Test' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .build();
       const emptyDescription = '';
 
       // Act
@@ -389,7 +419,10 @@ describe('[Category Entity]', () => {
 
     it('should allow changing multiple times and call validator each time', () => {
       // Arrange
-      const category = new Category({ name: 'Test' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .build();
       const firstChange = 'First Description';
       const secondChange = 'Second Description';
 
@@ -406,7 +439,11 @@ describe('[Category Entity]', () => {
   describe('[activate]', () => {
     it('should set is_active to true', () => {
       // Arrange
-      const category = new Category({ name: 'Test', is_active: false });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .deactivate()
+        .build();
 
       // Act
       category.activate();
@@ -417,7 +454,11 @@ describe('[Category Entity]', () => {
 
     it('should keep as true if already active', () => {
       // Arrange
-      const category = new Category({ name: 'Test', is_active: true });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .activate()
+        .build();
 
       // Act
       category.activate();
@@ -430,7 +471,11 @@ describe('[Category Entity]', () => {
   describe('[deactivate]', () => {
     it('should set is_active to false', () => {
       // Arrange
-      const category = new Category({ name: 'Test', is_active: true });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .activate()
+        .build();
 
       // Act
       category.deactivate();
@@ -441,7 +486,11 @@ describe('[Category Entity]', () => {
 
     it('should keep as false if already inactive', () => {
       // Arrange
-      const category = new Category({ name: 'Test', is_active: false });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .deactivate()
+        .build();
 
       // Act
       category.deactivate();
@@ -482,7 +531,10 @@ describe('[Category Entity]', () => {
 
     it('should maintain correct types (string, boolean, Date)', () => {
       // Arrange
-      const category = new Category({ name: 'Test' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .build();
 
       // Act
       const json = category.toJSON();
@@ -495,7 +547,11 @@ describe('[Category Entity]', () => {
 
     it('should include id as string in JSON and description as null', () => {
       // Arrange
-      const category = new Category({ name: 'Test' });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test')
+        .withDescription(null)
+        .build();
 
       // Act
       const json = category.toJSON();
@@ -512,7 +568,11 @@ describe('[Category Entity]', () => {
       const name = 'Test Category';
 
       // Act
-      const category = new Category({ name, is_active: false });
+      const category = Category.fake()
+        .createCategory()
+        .withName(name)
+        .deactivate()
+        .build();
       category.activate();
 
       // Assert
@@ -522,10 +582,11 @@ describe('[Category Entity]', () => {
 
     it('should change name and description in sequence', () => {
       // Arrange
-      const category = new Category({
-        name: 'Original Name',
-        description: 'Original Description',
-      });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original Name')
+        .withDescription('Original Description')
+        .build();
       const newName = 'New Name';
       const newDescription = 'New Description';
 
@@ -566,7 +627,11 @@ describe('[Category Entity]', () => {
 
     it('should use toJSON after multiple changes', () => {
       // Arrange
-      const category = new Category({ name: 'Original', is_active: true });
+      const category = Category.fake()
+        .createCategory()
+        .withName('Original')
+        .activate()
+        .build();
 
       // Act
       category.changeName('Updated Name');
@@ -585,7 +650,7 @@ describe('[Category Entity]', () => {
     it('should return the entity id as ValueObject', () => {
       // Arrange
       const name = 'Category Test';
-      const category = new Category({ name });
+      const category = Category.fake().createCategory().withName(name).build();
 
       // Act
       const entityId = category.entity_id;
@@ -598,7 +663,7 @@ describe('[Category Entity]', () => {
     it('should return the same id when entity_id is called multiple times', () => {
       // Arrange
       const name = 'Category Test';
-      const category = new Category({ name });
+      const category = Category.fake().createCategory().withName(name).build();
 
       // Act
       const entityId1 = category.entity_id;
@@ -613,7 +678,11 @@ describe('[Category Entity]', () => {
       // Arrange
       const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
       const name = 'Category Test';
-      const category = new Category({ id: customUuid, name });
+      const category = Category.fake()
+        .createCategory()
+        .withUuid(customUuid)
+        .withName(name)
+        .build();
 
       // Act
       const entityId = category.entity_id as Uuid;
@@ -629,8 +698,16 @@ describe('[Category Entity]', () => {
       const customUuid2 = new Uuid('550e8400-e29b-41d4-a716-446655440001');
       const name1 = 'Category 1';
       const name2 = 'Category 2';
-      const category1 = new Category({ id: customUuid1, name: name1 });
-      const category2 = new Category({ id: customUuid2, name: name2 });
+      const category1 = Category.fake()
+        .createCategory()
+        .withUuid(customUuid1)
+        .withName(name1)
+        .build();
+      const category2 = Category.fake()
+        .createCategory()
+        .withUuid(customUuid2)
+        .withName(name2)
+        .build();
 
       // Act
       const entityId1 = category1.entity_id as Uuid;
@@ -648,7 +725,7 @@ describe('[Category Entity]', () => {
       const name = 'Category Test';
 
       // Act
-      const category = new Category({ name });
+      const category = Category.fake().createCategory().withName(name).build();
 
       // Assert
       expect(category.id).toBeInstanceOf(Uuid);
@@ -664,7 +741,11 @@ describe('[Category Entity]', () => {
       const name = 'Category Test';
 
       // Act
-      const category = new Category({ id: customUuid, name });
+      const category = Category.fake()
+        .createCategory()
+        .withUuid(customUuid)
+        .withName(name)
+        .build();
 
       // Assert
       expect(category.id).toBe(customUuid);
@@ -695,8 +776,14 @@ describe('[Category Entity]', () => {
       const name2 = 'Category 2';
 
       // Act
-      const category1 = new Category({ name: name1 });
-      const category2 = new Category({ name: name2 });
+      const category1 = Category.fake()
+        .createCategory()
+        .withName(name1)
+        .build();
+      const category2 = Category.fake()
+        .createCategory()
+        .withName(name2)
+        .build();
 
       // Assert
       expect(category1.id).toBeInstanceOf(Uuid);

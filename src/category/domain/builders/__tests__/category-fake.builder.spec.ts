@@ -121,7 +121,6 @@ describe('[CategoryFakeBuilder]', () => {
       // Assert
       const names = categories.map((c) => c.name);
       const uniqueNames = new Set(names);
-      // Pode haver nomes duplicados por acaso, mas é improvável
       expect(names.length).toBe(3);
     });
   });
