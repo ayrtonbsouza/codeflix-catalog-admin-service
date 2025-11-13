@@ -67,6 +67,9 @@ export class CategorySequelizeRepository
 
   async findById(id: Uuid): Promise<Category | null> {
     const model = await this._get(id.value);
+    if (!model) {
+      return null;
+    }
     return new Category({
       id: new Uuid(model.id),
       name: model.name,
