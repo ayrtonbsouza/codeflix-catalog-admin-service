@@ -3,24 +3,11 @@ import { CategoryModelMapper } from '@/category/infra/db/sequelize/mappers/categ
 import { Category } from '@/category/domain/entities/category.entity';
 import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
+import { setupSequelize } from '@/shared/infra/testing/helpers';
 
 describe('Integration: [CategoryModelMapper]', () => {
-  let sequelize: Sequelize;
+  setupSequelize({ models: [CategoryModel] });
 
-  beforeEach(async () => {
-    sequelize = new Sequelize({
-      dialect: 'sqlite',
-      storage: ':memory:',
-      models: [CategoryModel],
-      logging: false,
-    });
-
-    await sequelize.sync({ force: true });
-  });
-
-  afterEach(async () => {
-    await sequelize.close();
-  });
   describe('[toModel]', () => {
     it('should convert Category entity to CategoryModel', () => {
       // Arrange

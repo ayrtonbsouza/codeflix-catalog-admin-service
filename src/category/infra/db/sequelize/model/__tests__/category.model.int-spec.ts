@@ -1,24 +1,9 @@
-import { Sequelize } from 'sequelize-typescript';
 import { CategoryModel } from '../category.model';
 import { Category } from '@/category/domain/entities/category.entity';
+import { setupSequelize } from '@/shared/infra/testing/helpers';
 
 describe('Integration: [Category Model]', () => {
-  let sequelize: Sequelize;
-
-  beforeEach(async () => {
-    sequelize = new Sequelize({
-      dialect: 'sqlite',
-      storage: ':memory:',
-      models: [CategoryModel],
-      logging: false,
-    });
-
-    await sequelize.sync({ force: true });
-  });
-
-  afterEach(async () => {
-    await sequelize.close();
-  });
+  setupSequelize({ models: [CategoryModel] });
 
   describe('[create]', () => {
     it('should create a category with all fields', async () => {
