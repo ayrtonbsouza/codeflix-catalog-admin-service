@@ -127,7 +127,9 @@ describe('Integration: [DeleteCategoryUseCase]', () => {
       const foundCategory = await repository.findById(existingCategory.id);
       expect(foundCategory).toBeNull();
 
-      const foundModel = await CategoryModel.findByPk(existingCategory.id.value);
+      const foundModel = await CategoryModel.findByPk(
+        existingCategory.id.value,
+      );
       expect(foundModel).toBeNull();
     });
 
@@ -236,4 +238,3 @@ describe('Integration: [DeleteCategoryUseCase]', () => {
     });
   });
 });
-

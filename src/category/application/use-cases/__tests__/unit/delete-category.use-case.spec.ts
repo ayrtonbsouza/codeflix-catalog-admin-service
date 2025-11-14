@@ -94,7 +94,9 @@ describe('Unit: [DeleteCategoryUseCase]', () => {
       expect(deleteSpy).toHaveBeenCalledTimes(1);
       const all = await repository.findAll();
       expect(all).toHaveLength(2);
-      expect(all.find((c) => c.id.value === category2.id.value)).toBeUndefined();
+      expect(
+        all.find((c) => c.id.value === category2.id.value),
+      ).toBeUndefined();
       expect(all.find((c) => c.id.value === category1.id.value)).toBeDefined();
       expect(all.find((c) => c.id.value === category3.id.value)).toBeDefined();
     });
@@ -171,4 +173,3 @@ describe('Unit: [DeleteCategoryUseCase]', () => {
     });
   });
 });
-
