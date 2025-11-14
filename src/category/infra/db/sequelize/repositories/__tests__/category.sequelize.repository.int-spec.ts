@@ -615,7 +615,6 @@ describe('Integration: [CategorySequelizeRepository]', () => {
 
       // Assert
       expect(result.items).toHaveLength(3);
-      // Should default to created_at desc
       expect(result.items[0].name).toBe('Zebra Category');
     });
 
