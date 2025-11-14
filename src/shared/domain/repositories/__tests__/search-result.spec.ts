@@ -1,5 +1,5 @@
-import { Entity } from '@/shared/domain/abstract/entity';
-import { ValueObject } from '@/shared/domain/abstract/value-object';
+import { Entity } from '@/shared/domain/entities/entity';
+import { ValueObject } from '@/shared/domain/entities/value-object';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 import { SearchResult } from '@/shared/domain/repositories/search-result';
 

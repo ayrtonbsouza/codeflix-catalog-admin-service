@@ -1,5 +1,5 @@
-import type { Entity } from '@/shared/domain/abstract/entity';
-import type { ValueObject } from '@/shared/domain/abstract/value-object';
+import type { Entity } from '@/shared/domain/entities/entity';
+import type { ValueObject } from '@/shared/domain/entities/value-object';
 import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import type {
   IRepository,

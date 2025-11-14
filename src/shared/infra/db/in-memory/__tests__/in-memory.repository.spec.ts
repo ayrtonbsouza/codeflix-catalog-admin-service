@@ -7,8 +7,8 @@ import {
   InMemoryRepository,
   InMemorySearchableRepository,
 } from '@/shared/infra/db/in-memory/in-memory.repository';
-import { Entity } from '@/shared/domain/abstract/entity';
-import type { ValueObject } from '@/shared/domain/abstract/value-object';
+import { Entity } from '@/shared/domain/entities/entity';
+import type { ValueObject } from '@/shared/domain/entities/value-object';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import { SearchParams } from '@/shared/domain/repositories/search-params';

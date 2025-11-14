@@ -1,4 +1,4 @@
-import { ValueObject } from '@/shared/domain/abstract/value-object';
+import { ValueObject } from '@/shared/domain/entities/value-object';
 import { v4 as uuidv4, validate as uuidValidate } from 'uuid';
 
 export class Uuid extends ValueObject {
