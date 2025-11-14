@@ -1,5 +1,5 @@
 import { Category } from '@/category/domain/entities/category.entity';
-import { CategoryModel } from '../model/category.model';
+import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 
 export class CategoryModelMapper {

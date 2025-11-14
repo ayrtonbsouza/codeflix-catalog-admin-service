@@ -1,4 +1,4 @@
-import { CategoryModel } from '../category.model';
+import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
 import { Category } from '@/category/domain/entities/category.entity';
 import { setupSequelize } from '@/shared/infra/testing/helpers';
 

@@ -3,7 +3,7 @@ import { CategoryValidatorFactory } from '@/category/domain/validators/category.
 import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 import { Entity } from '@/shared/domain/entities/entity';
 import type { ValueObject } from '@/shared/domain/entities/value-object';
-import { CategoryFakeBuilder } from '../builders/category-fake.builder';
+import { CategoryFakeBuilder } from '@/category/domain/builders/category-fake.builder';
 
 export type CategoryConstructorProps = {
   id?: Uuid;

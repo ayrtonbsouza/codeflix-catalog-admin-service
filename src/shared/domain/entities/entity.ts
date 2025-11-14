@@ -1,4 +1,4 @@
-import type { ValueObject } from './value-object';
+import type { ValueObject } from '@/shared/domain/entities/value-object';
 
 export abstract class Entity {
   abstract get entity_id(): ValueObject;
