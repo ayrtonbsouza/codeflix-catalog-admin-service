@@ -9,6 +9,7 @@
     "test:unit": "jest --testMatch=\"**/*.spec.ts\"",
     "test:integration": "jest --testMatch=\"**/*.int-spec.ts\"",
     "test:all": "jest --testMatch=\"**/*spec.ts\"",
+    "tsc:check": "tsc --noEmit",
     "lint": "eslint \"{src,apps,libs,test}/**/*.{ts,js}\"",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.{ts,js}\" --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",

@@ -81,7 +81,7 @@ export class CategoryFakeBuilder<TBuild = any> {
         });
         return category;
       });
-    return this.countObjects === 1 ? (categories[0] as any) : categories;
+    return (this.countObjects === 1 ? categories[0] : categories) as TBuild;
   }
 
   get id() {
