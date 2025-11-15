@@ -2,7 +2,7 @@ import { Sequelize, type SequelizeOptions } from 'sequelize-typescript';
 import { Config } from '@/shared/infra/config';
 
 export function setupSequelize(options: SequelizeOptions = {}) {
-  let _sequelize: Sequelize;
+  let _sequelize: Sequelize | undefined;
 
   beforeAll(() => {
     _sequelize = new Sequelize({
@@ -11,9 +11,17 @@ export function setupSequelize(options: SequelizeOptions = {}) {
     });
   });
 
-  beforeEach(async () => await _sequelize.sync({ force: true }));
+  beforeEach(async () => {
+    if (_sequelize) {
+      await _sequelize.sync({ force: true });
+    }
+  });
 
-  afterAll(async () => await _sequelize.close());
+  afterAll(async () => {
+    if (_sequelize) {
+      await _sequelize.close();
+    }
+  });
 
   return {
     get sequelize() {

@@ -29,7 +29,10 @@
 	"customizations": {
 		"vscode": {
 			"settings": {
-				"terminal.integrated.defaultProfile.linux": "zsh"
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"jest.autoRun": "off",
+				"jest.runMode": "on-demand",
+				"jest.autoRevealOutput": "off"
 			},
 			"extensions": [
 				"openai.chatgpt",

@@ -13,7 +13,8 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.{ts,js}\"",
     "lint:fix": "eslint \"{src,apps,libs,test}/**/*.{ts,js}\" --fix",
     "format": "prettier --write \"**/*.{ts,js,json,md}\"",
-    "postinstall": "pnpm rebuild sqlite3 || true"
+    "rebuild:sqlite3": "bash scripts/rebuild-sqlite3.sh",
+    "postinstall": "pnpm rebuild:sqlite3 || echo 'Warning: sqlite3 rebuild failed in postinstall. Will retry in start script.'"
   },
   "keywords": [],
   "author": "",
@@ -50,6 +51,6 @@
     "lodash": "^4.17.21",
     "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "5.1.7"
   }
 }

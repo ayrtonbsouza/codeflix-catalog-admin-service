@@ -205,11 +205,23 @@ if [ -f "package.json" ]; then
     echo "• Configuring sqlite3 native bindings..."
 
     echo "  • Rebuilding sqlite3 native bindings..."
-    pnpm rebuild sqlite3 2>&1 | grep -v "WARN" || {
-        echo "  ⚠ sqlite3 rebuild may have failed."
-        echo "  If tests fail, run 'pnpm approve-builds' and select sqlite3, then 'pnpm rebuild sqlite3'"
-    }
+    if [ -f "scripts/rebuild-sqlite3.sh" ]; then
+        bash scripts/rebuild-sqlite3.sh 2>&1 | grep -v "WARN" || {
+            echo "  ⚠ sqlite3 rebuild may have failed."
+            echo "  If tests fail, run 'pnpm rebuild:sqlite3' manually"
+        }
+    else
+        pnpm rebuild:sqlite3 2>&1 | grep -v "WARN" || {
+            echo "  ⚠ sqlite3 rebuild may have failed."
+            echo "  If tests fail, run 'pnpm rebuild:sqlite3' manually"
+        }
+    fi
     echo "✓ Dependencies installed"
+    
+    # Create a flag file to indicate setup is complete
+    # This prevents Jest from running tests before setup is finished
+    touch .devcontainer/.setup-complete
+    echo "✓ Setup completion flag created"
 else
     echo "  ⚠ No package.json found, skipping dependency installation"
 fi
@@ -217,4 +229,6 @@ fi
 echo ""
 echo "=== Setup completed successfully! ==="
 echo "ZSH and all plugins are ready to use!"
+echo ""
+echo "Note: Jest auto-run is disabled. Run tests manually with 'pnpm test' when ready."
 
