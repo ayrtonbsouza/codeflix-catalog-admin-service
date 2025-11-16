@@ -7,7 +7,7 @@ RUN apt-get update && \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm
+RUN npm install -g pnpm @nestjs/cli
 
 USER node
 

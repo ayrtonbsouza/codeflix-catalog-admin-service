@@ -3,7 +3,9 @@ import type { Config } from 'jest';
 const config: Config = {
   clearMocks: true,
   coverageProvider: 'v8',
+  moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: './src',
+  testRegex: '.*\\..*spec\\.ts$',
   collectCoverage: true,
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
@@ -29,9 +31,7 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
-  setupFilesAfterEnv: [
-    '<rootDir>/../src/shared/infra/testing/expect-helpers.ts',
-  ],
+  setupFilesAfterEnv: ['<rootDir>/core/shared/infra/testing/expect-helpers.ts'],
   transform: {
     '^.+\\.tsx?$': [
       '@swc/jest',
