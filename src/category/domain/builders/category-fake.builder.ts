@@ -79,6 +79,7 @@ export class CategoryFakeBuilder<TBuild = any> {
             created_at: this.callFactory(this._created_at, index),
           }),
         });
+        category.validate();
         return category;
       });
     return (this.countObjects === 1 ? categories[0] : categories) as TBuild;

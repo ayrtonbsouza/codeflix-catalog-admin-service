@@ -4,6 +4,7 @@ import {
   type CreateCategoryInput,
 } from '@/category/application/use-cases/create-category.use-case';
 import { Category } from '@/category/domain/entities/category.entity';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 describe('Unit: [CreateCategoryUseCase]', () => {
   let useCase: CreateCategoryUseCase;
@@ -110,6 +111,44 @@ describe('Unit: [CreateCategoryUseCase]', () => {
         expect(output.description).toBe(insertedEntity.description);
         expect(output.is_active).toBe(insertedEntity.is_active);
         expect(output.created_at).toBe(insertedEntity.created_at);
+      }
+    });
+
+    it('should throw EntityValidationError when category has validation errors', async () => {
+      // Arrange
+      const input: CreateCategoryInput = {
+        name: '',
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+
+      try {
+        await useCase.execute(input);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+      }
+    });
+
+    it('should throw EntityValidationError when category name is too short', async () => {
+      // Arrange
+      const input: CreateCategoryInput = {
+        name: 'AB',
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+
+      try {
+        await useCase.execute(input);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
       }
     });
   });

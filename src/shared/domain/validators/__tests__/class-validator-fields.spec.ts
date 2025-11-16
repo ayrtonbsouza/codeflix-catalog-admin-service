@@ -1,4 +1,5 @@
 import { ClassValidatorFields } from '@/shared/domain/validators/class-validator-fields';
+import { Notification } from '@/shared/domain/validators/notification';
 
 class TestDTO {
   name: string;
@@ -8,7 +9,7 @@ class TestDTO {
   }
 }
 
-class SimpleStub extends ClassValidatorFields<TestDTO> {}
+class SimpleStub extends ClassValidatorFields {}
 
 describe('Unit: [ClassValidatorFields]', () => {
   let validator: SimpleStub;
@@ -20,19 +21,7 @@ describe('Unit: [ClassValidatorFields]', () => {
   describe('[IValidatorFields interface implementation]', () => {
     it('should implement IValidatorFields interface', () => {
       // Assert
-      expect(validator).toHaveProperty('errors');
-      expect(validator).toHaveProperty('validatedData');
       expect(validator).toHaveProperty('validate');
-    });
-
-    it('should have errors property initialized as null', () => {
-      // Assert
-      expect(validator.errors).toBeNull();
-    });
-
-    it('should have validatedData property initialized as null', () => {
-      // Assert
-      expect(validator.validatedData).toBeNull();
     });
 
     it('should have validate method', () => {
@@ -45,9 +34,10 @@ describe('Unit: [ClassValidatorFields]', () => {
     it('should execute validate method', () => {
       // Arrange
       const data = new TestDTO('test');
+      const notification = new Notification();
 
       // Act
-      const result = validator.validate(data);
+      const result = validator.validate(notification, data, []);
 
       // Assert
       expect(typeof result).toBe('boolean');
@@ -56,9 +46,10 @@ describe('Unit: [ClassValidatorFields]', () => {
     it('should handle null data', () => {
       // Arrange
       const data = null as any;
+      const notification = new Notification();
 
       // Act & Assert
-      expect(() => validator.validate(data)).toThrow();
+      expect(() => validator.validate(notification, data, [])).toThrow();
     });
   });
 

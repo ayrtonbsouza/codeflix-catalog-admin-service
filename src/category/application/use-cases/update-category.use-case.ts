@@ -7,6 +7,7 @@ import {
   CategoryOutputMapper,
   type CategoryOutput,
 } from '@/category/application/use-cases/common/category-output';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 export class UpdateCategoryUseCase
   implements IUseCase<UpdateCategoryInput, UpdateCategoryOutput>
@@ -35,6 +36,10 @@ export class UpdateCategoryUseCase
 
     if (input.is_active === false) {
       category.deactivate();
+    }
+
+    if (category.notification.hasErrors()) {
+      throw new EntityValidationError(category.notification.toJSON());
     }
 
     await this.categoryRepository.update(category);

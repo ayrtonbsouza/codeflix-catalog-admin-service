@@ -12,7 +12,7 @@ describe('Unit: [Validation Error]', () => {
   describe('[BaseValidationError]', () => {
     it('should create an instance with default message', () => {
       // Arrange
-      const errors = { field: ['error message'] };
+      const errors = [{ field: ['error message'] }];
 
       // Act
       const error = new BaseValidationErrorStub(errors);
@@ -26,7 +26,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should create an instance with custom message', () => {
       // Arrange
-      const errors = { field: ['error message'] };
+      const errors = [{ field: ['error message'] }];
       const customMessage = 'Custom Error Message';
 
       // Act
@@ -39,11 +39,11 @@ describe('Unit: [Validation Error]', () => {
 
     it('should count errors correctly', () => {
       // Arrange
-      const errors = {
-        field1: ['error 1'],
-        field2: ['error 2', 'error 3'],
-        field3: ['error 4'],
-      };
+      const errors = [
+        { field1: ['error 1'] },
+        { field2: ['error 2', 'error 3'] },
+        { field3: ['error 4'] },
+      ];
 
       // Act
       const error = new BaseValidationErrorStub(errors);
@@ -54,7 +54,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should return 0 when there are no errors', () => {
       // Arrange
-      const errors = {};
+      const errors: Array<string | { [key: string]: string[] }> = [];
 
       // Act
       const error = new BaseValidationErrorStub(errors);
@@ -65,9 +65,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should handle multiple error messages per field', () => {
       // Arrange
-      const errors = {
-        field: ['error 1', 'error 2', 'error 3'],
-      };
+      const errors = [{ field: ['error 1', 'error 2', 'error 3'] }];
 
       // Act
       const error = new BaseValidationErrorStub(errors);
@@ -111,9 +109,7 @@ describe('Unit: [Validation Error]', () => {
   describe('[EntityValidationError]', () => {
     it('should create an instance with correct default message', () => {
       // Arrange
-      const errors = {
-        name: ['name is required'],
-      };
+      const errors = [{ name: ['name is required'] }];
 
       // Act
       const error = new EntityValidationError(errors);
@@ -127,7 +123,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should set custom name property', () => {
       // Arrange
-      const errors = { field: ['error'] };
+      const errors = [{ field: ['error'] }];
 
       // Act
       const error = new EntityValidationError(errors);
@@ -138,10 +134,10 @@ describe('Unit: [Validation Error]', () => {
 
     it('should count errors correctly', () => {
       // Arrange
-      const errors = {
-        field1: ['error 1'],
-        field2: ['error 2'],
-      };
+      const errors = [
+        { field1: ['error 1'] },
+        { field2: ['error 2'] },
+      ];
 
       // Act
       const error = new EntityValidationError(errors);
@@ -154,9 +150,7 @@ describe('Unit: [Validation Error]', () => {
   describe('[SearchValidationError]', () => {
     it('should create an instance with correct default message', () => {
       // Arrange
-      const errors = {
-        query: ['query is required'],
-      };
+      const errors = [{ query: ['query is required'] }];
 
       // Act
       const error = new SearchValidationError(errors);
@@ -170,7 +164,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should set custom name property', () => {
       // Arrange
-      const errors = { field: ['error'] };
+      const errors = [{ field: ['error'] }];
 
       // Act
       const error = new SearchValidationError(errors);
@@ -181,10 +175,10 @@ describe('Unit: [Validation Error]', () => {
 
     it('should count errors correctly', () => {
       // Arrange
-      const errors = {
-        page: ['invalid page'],
-        limit: ['invalid limit'],
-      };
+      const errors = [
+        { page: ['invalid page'] },
+        { limit: ['invalid limit'] },
+      ];
 
       // Act
       const error = new SearchValidationError(errors);
@@ -197,9 +191,7 @@ describe('Unit: [Validation Error]', () => {
   describe('[LoadEntityError]', () => {
     it('should create an instance with correct default message', () => {
       // Arrange
-      const errors = {
-        id: ['id is required'],
-      };
+      const errors = [{ id: ['id is required'] }];
 
       // Act
       const error = new LoadEntityError(errors);
@@ -213,7 +205,7 @@ describe('Unit: [Validation Error]', () => {
 
     it('should set custom name property', () => {
       // Arrange
-      const errors = { field: ['error'] };
+      const errors = [{ field: ['error'] }];
 
       // Act
       const error = new LoadEntityError(errors);
@@ -224,10 +216,10 @@ describe('Unit: [Validation Error]', () => {
 
     it('should count errors correctly', () => {
       // Arrange
-      const errors = {
-        id: ['id is required'],
-        repository: ['repository error'],
-      };
+      const errors = [
+        { id: ['id is required'] },
+        { repository: ['repository error'] },
+      ];
 
       // Act
       const error = new LoadEntityError(errors);

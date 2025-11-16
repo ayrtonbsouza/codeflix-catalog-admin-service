@@ -4,6 +4,7 @@ import { Category } from '@/category/domain/entities/category.entity';
 import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 import { setupSequelize } from '@/shared/infra/testing/helpers';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 describe('Integration: [CategoryModelMapper]', () => {
   setupSequelize({ models: [CategoryModel] });
@@ -183,6 +184,56 @@ describe('Integration: [CategoryModelMapper]', () => {
       expect(entity.description).toBe('Complete Description');
       expect(entity.is_active).toBe(true);
       expect(entity.created_at).toEqual(createdAt);
+    });
+
+    it('should throw EntityValidationError when CategoryModel has invalid name (empty string)', () => {
+      // Arrange
+      const model = CategoryModel.build({
+        id: '550e8400-e29b-41d4-a716-446655440004',
+        name: '',
+        description: 'Some Description',
+        is_active: true,
+        created_at: new Date('2024-01-01T10:00:00.000Z'),
+      });
+
+      // Act & Assert
+      expect(() => {
+        CategoryModelMapper.toEntity(model);
+      }).toThrow(EntityValidationError);
+
+      try {
+        CategoryModelMapper.toEntity(model);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+      }
+    });
+
+    it('should throw EntityValidationError when CategoryModel has invalid name (too short)', () => {
+      // Arrange
+      const model = CategoryModel.build({
+        id: '550e8400-e29b-41d4-a716-446655440005',
+        name: 'AB',
+        description: 'Some Description',
+        is_active: true,
+        created_at: new Date('2024-01-01T10:00:00.000Z'),
+      });
+
+      // Act & Assert
+      expect(() => {
+        CategoryModelMapper.toEntity(model);
+      }).toThrow(EntityValidationError);
+
+      try {
+        CategoryModelMapper.toEntity(model);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+      }
     });
   });
 

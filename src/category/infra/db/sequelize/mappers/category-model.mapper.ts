@@ -1,5 +1,6 @@
 import { Category } from '@/category/domain/entities/category.entity';
 import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 
 export class CategoryModelMapper {
@@ -13,12 +14,17 @@ export class CategoryModelMapper {
     });
   }
   static toEntity(model: CategoryModel): Category {
-    return new Category({
+    const category = new Category({
       id: new Uuid(model.id),
       name: model.name,
       description: model.description,
       is_active: model.is_active,
       created_at: model.created_at,
     });
+    category.validate();
+    if (category.notification.hasErrors()) {
+      throw new EntityValidationError(category.notification.toJSON());
+    }
+    return category;
   }
 }

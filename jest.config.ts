@@ -30,7 +30,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/$1',
   },
   setupFilesAfterEnv: [
-    '<rootDir>/../src/shared/infra/testing/except-helpers.ts',
+    '<rootDir>/../src/shared/infra/testing/expect-helpers.ts',
   ],
   transform: {
     '^.+\\.tsx?$': [

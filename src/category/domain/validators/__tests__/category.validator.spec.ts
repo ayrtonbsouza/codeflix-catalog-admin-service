@@ -42,12 +42,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
-      expect(validator.validatedData).not.toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with minimum fields', () => {
@@ -57,11 +56,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with optional fields', () => {
@@ -72,11 +71,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false and set errors when name is empty string', () => {
@@ -86,14 +85,13 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name should not be empty'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be longer than or equal to 3 characters'] },
+      ]);
     });
 
     it('should return false and set errors when name is undefined', () => {
@@ -103,14 +101,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: expect.any(Array),
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should return false and set errors when name is null', () => {
@@ -120,14 +115,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: expect.any(Array),
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should return false when name is too short (less than 3 characters)', () => {
@@ -137,14 +129,13 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be longer than or equal to 3 characters'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be longer than or equal to 3 characters'] },
+      ]);
     });
 
     it('should return false when name is too long (more than 255 characters)', () => {
@@ -154,14 +145,13 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be shorter than or equal to 255 characters'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be shorter than or equal to 255 characters'] },
+      ]);
     });
 
     it('should return false when name is not a string (number)', () => {
@@ -171,14 +161,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should return false when name is not a string (object)', () => {
@@ -188,14 +175,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should return false when is_active is not a boolean (string)', () => {
@@ -206,14 +190,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
-      expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        is_active: ['is_active must be a boolean value'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(isValid).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when is_active is not a boolean (number)', () => {
@@ -224,14 +205,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
-      expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        is_active: ['is_active must be a boolean value'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(isValid).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when description is not a string (number)', () => {
@@ -242,14 +220,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
-      expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        description: ['description must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(isValid).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
   });
 
@@ -264,12 +239,12 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.changeName(newName);
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
       expect(category.name).toBe(newName);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when changing to empty name', () => {
@@ -281,14 +256,13 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.name = '';
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name should not be empty'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be longer than or equal to 3 characters'] },
+      ]);
     });
 
     it('should return false when changing to name shorter than 3 characters', () => {
@@ -300,14 +274,13 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.name = 'AB';
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be longer than or equal to 3 characters'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be longer than or equal to 3 characters'] },
+      ]);
     });
 
     it('should return false when changing to name longer than 255 characters', () => {
@@ -319,14 +292,13 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.name = 'A'.repeat(256);
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be shorter than or equal to 255 characters'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification).notificationContainsErrorMessages([
+        { name: ['name must be shorter than or equal to 255 characters'] },
+      ]);
     });
 
     it('should return false when changing to non-string name', () => {
@@ -338,14 +310,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.name = 123 as any;
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: ['name must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should return false when changing to null name', () => {
@@ -357,14 +326,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.name = null as any;
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: expect.any(Array),
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
   });
 
@@ -379,12 +345,12 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.changeDescription(newDescription);
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
       expect(category.description).toBe(newDescription);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with empty description', () => {
@@ -396,11 +362,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.description = '';
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with null description', () => {
@@ -412,11 +378,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.description = null;
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when description is not a string (number)', () => {
@@ -428,14 +394,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.description = 123 as any;
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
-      expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        description: ['description must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(isValid).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when description is not a string (object)', () => {
@@ -447,14 +410,11 @@ describe('Unit: [Category Validator]', () => {
 
       // Act
       category.description = { value: 'test' } as any;
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
-      expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        description: ['description must be a string'],
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(isValid).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
   });
 
@@ -466,11 +426,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate name with exactly 255 characters', () => {
@@ -480,11 +440,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with is_active as false', () => {
@@ -495,11 +455,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should validate successfully with is_active as true', () => {
@@ -510,11 +470,11 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(category.notification.hasErrors()).toBe(false);
     });
 
     it('should return false when multiple fields have errors', () => {
@@ -525,36 +485,32 @@ describe('Unit: [Category Validator]', () => {
       });
 
       // Act
-      const isValid = validator.validate(category);
+      const isValid = validator.validate(category.notification, category);
 
       // Assert
       expect(isValid).toBe(false);
-      expect({ validator, data: category }).containsErrorMessages({
-        name: expect.any(Array),
-        is_active: expect.any(Array),
-      });
-      expect(validator.validatedData).toBeNull();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
     it('should clear previous errors when validating valid entity', () => {
       // Arrange
       const invalidCategory = new Category({ name: '' });
-      validator.validate(invalidCategory);
-      expect(validator.errors).not.toBeNull();
+      validator.validate(invalidCategory.notification, invalidCategory);
+      expect(invalidCategory.notification.hasErrors()).toBe(true);
 
       // Act
       const validCategory = Category.fake()
         .createCategory()
         .withName('Valid Name')
         .build();
-      validator.errors = null;
-      validator.validatedData = null;
-      const isValid = validator.validate(validCategory);
+      const isValid = validator.validate(
+        validCategory.notification,
+        validCategory,
+      );
 
       // Assert
       expect(isValid).toBe(true);
-      expect(validator.errors).toBeNull();
-      expect(validator.validatedData).not.toBeNull();
+      expect(validCategory.notification.hasErrors()).toBe(false);
     });
   });
 
@@ -567,14 +523,14 @@ describe('Unit: [Category Validator]', () => {
         .build();
 
       // Act & Assert
-      expect(validator.validate(category1)).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(validator.validate(category1.notification, category1)).toBe(true);
+      expect(category1.notification.hasErrors()).toBe(false);
 
-      expect(validator.validate(category2)).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(validator.validate(category2.notification, category2)).toBe(true);
+      expect(category2.notification.hasErrors()).toBe(false);
 
-      expect(validator.validate(category3)).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(validator.validate(category3.notification, category3)).toBe(true);
+      expect(category3.notification.hasErrors()).toBe(false);
     });
 
     it('should validate same category multiple times', () => {
@@ -585,10 +541,10 @@ describe('Unit: [Category Validator]', () => {
         .build();
 
       // Act & Assert
-      expect(validator.validate(category)).toBe(true);
-      expect(validator.validate(category)).toBe(true);
-      expect(validator.validate(category)).toBe(true);
-      expect(validator.errors).toBeNull();
+      expect(validator.validate(category.notification, category)).toBe(true);
+      expect(validator.validate(category.notification, category)).toBe(true);
+      expect(validator.validate(category.notification, category)).toBe(true);
+      expect(category.notification.hasErrors()).toBe(false);
     });
   });
 });

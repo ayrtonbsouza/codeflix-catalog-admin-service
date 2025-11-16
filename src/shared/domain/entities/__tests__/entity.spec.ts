@@ -1,6 +1,7 @@
 import { Entity } from '@/shared/domain/entities/entity';
 import { ValueObject } from '@/shared/domain/entities/value-object';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
+import { Notification } from '@/shared/domain/validators/notification';
 
 let callCount = 0;
 const uuidValues = [
@@ -183,6 +184,121 @@ describe('Unit: [Entity Abstract Class]', () => {
       // Assert
       expect(entityId.value).toBe(json.id);
       expect(json.id).toBe('550e8400-e29b-41d4-a716-446655440002');
+    });
+  });
+
+  describe('[notification]', () => {
+    it('should have notification property initialized', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+
+      // Act & Assert
+      expect(entity.notification).toBeDefined();
+      expect(entity.notification).toBeInstanceOf(Notification);
+    });
+
+    it('should have a new Notification instance for each entity', () => {
+      // Arrange
+      const customUuid1 = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const customUuid2 = new Uuid('550e8400-e29b-41d4-a716-446655440001');
+      const entity1 = new EntityStub({ id: customUuid1, name: 'Entity 1' });
+      const entity2 = new EntityStub({ id: customUuid2, name: 'Entity 2' });
+
+      // Act & Assert
+      expect(entity1.notification).toBeInstanceOf(Notification);
+      expect(entity2.notification).toBeInstanceOf(Notification);
+      expect(entity1.notification).not.toBe(entity2.notification);
+    });
+
+    it('should start with no errors in notification', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+
+      // Act & Assert
+      expect(entity.notification.hasErrors()).toBe(false);
+    });
+
+    it('should allow adding errors to notification', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+
+      // Act
+      entity.notification.addError('Error message', 'name');
+
+      // Assert
+      expect(entity.notification.hasErrors()).toBe(true);
+      const errors = entity.notification.errors.get('name') as string[];
+      expect(errors).toContain('Error message');
+    });
+
+    it('should allow adding errors without field to notification', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+
+      // Act
+      entity.notification.addError('Global error');
+
+      // Assert
+      expect(entity.notification.hasErrors()).toBe(true);
+      expect(entity.notification.errors.get('Global error')).toBe(
+        'Global error',
+      );
+    });
+
+    it('should allow copying errors from another notification', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+      const sourceNotification = new Notification();
+      sourceNotification.addError('Source error', 'field');
+
+      // Act
+      entity.notification.copyErrors(sourceNotification);
+
+      // Assert
+      expect(entity.notification.hasErrors()).toBe(true);
+      const errors = entity.notification.errors.get('field') as string[];
+      expect(errors).toContain('Source error');
+    });
+
+    it('should allow converting notification errors to JSON', () => {
+      // Arrange
+      const customUuid = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const entity = new EntityStub({ id: customUuid, name: 'Test Entity' });
+      entity.notification.addError('Error 1', 'name');
+      entity.notification.addError('Error 2', 'email');
+
+      // Act
+      const json = entity.notification.toJSON();
+
+      // Assert
+      expect(Array.isArray(json)).toBe(true);
+      expect(json).toContainEqual({ name: ['Error 1'] });
+      expect(json).toContainEqual({ email: ['Error 2'] });
+    });
+
+    it('should maintain independent notification state per entity', () => {
+      // Arrange
+      const customUuid1 = new Uuid('550e8400-e29b-41d4-a716-446655440000');
+      const customUuid2 = new Uuid('550e8400-e29b-41d4-a716-446655440001');
+      const entity1 = new EntityStub({ id: customUuid1, name: 'Entity 1' });
+      const entity2 = new EntityStub({ id: customUuid2, name: 'Entity 2' });
+
+      // Act
+      entity1.notification.addError('Error in entity 1', 'field1');
+      entity2.notification.addError('Error in entity 2', 'field2');
+
+      // Assert
+      expect(entity1.notification.hasErrors()).toBe(true);
+      expect(entity2.notification.hasErrors()).toBe(true);
+      expect(entity1.notification.errors.has('field1')).toBe(true);
+      expect(entity1.notification.errors.has('field2')).toBe(false);
+      expect(entity2.notification.errors.has('field1')).toBe(false);
+      expect(entity2.notification.errors.has('field2')).toBe(true);
     });
   });
 });

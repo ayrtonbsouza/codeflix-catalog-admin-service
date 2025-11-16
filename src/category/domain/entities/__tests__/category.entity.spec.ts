@@ -28,7 +28,6 @@ jest.mock('uuid', () => ({
 const mockValidate = jest.fn();
 const mockValidator = {
   validate: mockValidate,
-  errors: null as any,
 };
 
 jest.mock('@/category/domain/validators/category.validator', () => {
@@ -47,7 +46,6 @@ jest.mock('@/category/domain/validators/category.validator', () => {
 describe('Unit: [Category Entity]', () => {
   beforeEach(() => {
     mockValidate.mockReturnValue(true);
-    mockValidator.errors = null;
     jest.clearAllMocks();
   });
 
@@ -149,7 +147,11 @@ describe('Unit: [Category Entity]', () => {
       expect(category.name).toBe(name);
       expect(category.description).toBe(description);
       expect(category.is_active).toBe(isActive);
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
       expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
@@ -163,7 +165,11 @@ describe('Unit: [Category Entity]', () => {
       // Assert
       expect(category).toBeInstanceOf(Category);
       expect(category.name).toBe(name);
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
       expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
@@ -176,7 +182,11 @@ describe('Unit: [Category Entity]', () => {
 
       // Assert
       expect(category.is_active).toBe(true);
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
     });
 
     it('should generate id automatically as Uuid instance', () => {
@@ -190,50 +200,65 @@ describe('Unit: [Category Entity]', () => {
       expect(category.id).toBeInstanceOf(Uuid);
       expect(category.id.value).toBeDefined();
       expect(typeof category.id.value).toBe('string');
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
     });
 
-    it('should throw an error if name is invalid (empty string)', () => {
+    it('should validate and add errors to notification if name is invalid (empty string)', () => {
       // Arrange
       const name = '' as any;
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = { name: ['name should not be empty'] };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError('name must be longer than or equal to 3 characters', 'name');
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        Category.create({ name });
-      }).toThrow(EntityValidationError);
+      // Act
+      const category = Category.create({ name });
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is too short (less than 3 characters)', () => {
+    it('should validate and add errors to notification if name is too short (less than 3 characters)', () => {
       // Arrange
       const name = 'AB';
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = {
-        name: ['name must be longer than or equal to 3 characters'],
-      };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError(
+          'name must be longer than or equal to 3 characters',
+          'name',
+        );
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        Category.create({ name });
-      }).toThrow(EntityValidationError);
+      // Act
+      const category = Category.create({ name });
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is too long (more than 255 characters)', () => {
+    it('should validate and add errors to notification if name is too long (more than 255 characters)', () => {
       // Arrange
       const name = 'A'.repeat(256);
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = {
-        name: ['name must be shorter than or equal to 255 characters'],
-      };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError(
+          'name must be shorter than or equal to 255 characters',
+          'name',
+        );
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        Category.create({ name });
-      }).toThrow(EntityValidationError);
+      // Act
+      const category = Category.create({ name });
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
   });
 
@@ -245,13 +270,18 @@ describe('Unit: [Category Entity]', () => {
         .withName('Original Name')
         .build();
       const newName = 'Updated Name';
+      mockValidate.mockClear();
 
       // Act
       category.changeName(newName);
 
       // Assert
       expect(category.name).toBe(newName);
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
       expect(mockValidate).toHaveBeenCalledTimes(1);
     });
 
@@ -266,6 +296,7 @@ describe('Unit: [Category Entity]', () => {
         'A Very Long Category Name With Spaces',
         'Name_With_Underscores',
       ];
+      mockValidate.mockClear();
 
       // Act & Assert
       validNames.forEach((name) => {
@@ -273,6 +304,11 @@ describe('Unit: [Category Entity]', () => {
         expect(category.name).toBe(name);
       });
       expect(mockValidate).toHaveBeenCalledTimes(validNames.length);
+      expect(mockValidate).toHaveBeenCalledWith(
+        category.notification,
+        category,
+        ['name'],
+      );
     });
 
     it('should allow changing multiple times and call validator each time', () => {
@@ -283,6 +319,7 @@ describe('Unit: [Category Entity]', () => {
         .build();
       const firstChange = 'First Change';
       const secondChange = 'Second Change';
+      mockValidate.mockClear();
 
       // Act
       category.changeName(firstChange);
@@ -293,131 +330,149 @@ describe('Unit: [Category Entity]', () => {
       expect(mockValidate).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw an error if name is an empty string', () => {
+    it('should validate and add errors to notification if name is an empty string', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Original Name')
         .build();
       const emptyName = '';
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = { name: ['name should not be empty'] };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError('name must be longer than or equal to 3 characters', 'name');
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        category.changeName(emptyName);
-      }).toThrow(EntityValidationError);
+      // Act
+      category.changeName(emptyName);
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is undefined', () => {
+    it('should validate and add errors to notification if name is undefined', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Original Name')
         .build();
       const name = undefined as any;
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = { name: ['name must be a string'] };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError('name must be a string', 'name');
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        category.changeName(name);
-      }).toThrow(EntityValidationError);
+      // Act
+      category.changeName(name);
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is null', () => {
+    it('should validate and add errors to notification if name is null', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Original Name')
         .build();
       const name = null as any;
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = { name: ['name should not be empty'] };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError('name must be longer than or equal to 3 characters', 'name');
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        category.changeName(name);
-      }).toThrow(EntityValidationError);
+      // Act
+      category.changeName(name);
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is too short (less than 3 characters)', () => {
+    it('should validate and add errors to notification if name is too short (less than 3 characters)', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Original Name')
         .build();
       const shortName = 'AB';
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = {
-        name: ['name must be longer than or equal to 3 characters'],
-      };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError(
+          'name must be longer than or equal to 3 characters',
+          'name',
+        );
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        category.changeName(shortName);
-      }).toThrow(EntityValidationError);
+      // Act
+      category.changeName(shortName);
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
 
-    it('should throw an error if name is too long (more than 255 characters)', () => {
+    it('should validate and add errors to notification if name is too long (more than 255 characters)', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Original Name')
         .build();
       const longName = 'A'.repeat(256);
-      mockValidate.mockReturnValue(false);
-      mockValidator.errors = {
-        name: ['name must be shorter than or equal to 255 characters'],
-      };
+      mockValidate.mockImplementation((notification) => {
+        notification.addError(
+          'name must be shorter than or equal to 255 characters',
+          'name',
+        );
+        return false;
+      });
 
-      // Act & Assert
-      expect(() => {
-        category.changeName(longName);
-      }).toThrow(EntityValidationError);
+      // Act
+      category.changeName(longName);
+
+      // Assert
       expect(mockValidate).toHaveBeenCalled();
+      expect(category.notification.hasErrors()).toBe(true);
     });
   });
 
   describe('[changeDescription]', () => {
-    it('should change the category description and call validator', () => {
+    it('should change the category description without calling validator', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Test')
         .build();
       const newDescription = 'Updated Description';
+      mockValidate.mockClear();
 
       // Act
       category.changeDescription(newDescription);
 
       // Assert
       expect(category.description).toBe(newDescription);
-      expect(mockValidate).toHaveBeenCalledWith(category);
-      expect(mockValidate).toHaveBeenCalledTimes(1);
+      expect(mockValidate).not.toHaveBeenCalled();
     });
 
-    it('should allow empty description and call validator', () => {
+    it('should allow empty description without calling validator', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
         .withName('Test')
         .build();
       const emptyDescription = '';
+      mockValidate.mockClear();
 
       // Act
       category.changeDescription(emptyDescription);
 
       // Assert
       expect(category.description).toBe(emptyDescription);
-      expect(mockValidate).toHaveBeenCalledWith(category);
+      expect(mockValidate).not.toHaveBeenCalled();
     });
 
-    it('should allow changing multiple times and call validator each time', () => {
+    it('should allow changing multiple times without calling validator', () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
@@ -425,6 +480,7 @@ describe('Unit: [Category Entity]', () => {
         .build();
       const firstChange = 'First Description';
       const secondChange = 'Second Description';
+      mockValidate.mockClear();
 
       // Act
       category.changeDescription(firstChange);
@@ -432,7 +488,7 @@ describe('Unit: [Category Entity]', () => {
 
       // Assert
       expect(category.description).toBe(secondChange);
-      expect(mockValidate).toHaveBeenCalledTimes(2);
+      expect(mockValidate).not.toHaveBeenCalled();
     });
   });
 

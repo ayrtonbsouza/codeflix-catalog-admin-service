@@ -6,6 +6,7 @@ import {
 import { Category } from '@/category/domain/entities/category.entity';
 import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
+import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
 describe('Unit: [UpdateCategoryUseCase]', () => {
   let useCase: UpdateCategoryUseCase;
@@ -277,6 +278,58 @@ describe('Unit: [UpdateCategoryUseCase]', () => {
         description: existingCategory.description,
         is_active: existingCategory.is_active,
       });
+    });
+
+    it('should throw EntityValidationError when category has validation errors after changing name', async () => {
+      // Arrange
+      const existingCategory = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
+      await repository.insert(existingCategory);
+
+      const input: UpdateCategoryInput = {
+        id: existingCategory.id.value,
+        name: '',
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+
+      try {
+        await useCase.execute(input);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+      }
+    });
+
+    it('should throw EntityValidationError when category name is too short after update', async () => {
+      // Arrange
+      const existingCategory = Category.fake()
+        .createCategory()
+        .withName('Valid Name')
+        .build();
+      await repository.insert(existingCategory);
+
+      const input: UpdateCategoryInput = {
+        id: existingCategory.id.value,
+        name: 'AB',
+      };
+
+      // Act & Assert
+      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+
+      try {
+        await useCase.execute(input);
+        fail('Expected EntityValidationError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EntityValidationError);
+        expect((error as EntityValidationError).error).toBeDefined();
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+      }
     });
   });
 });
