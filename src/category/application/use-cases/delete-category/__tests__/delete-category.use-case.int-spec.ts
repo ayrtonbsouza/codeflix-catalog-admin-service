@@ -2,7 +2,7 @@ import { CategorySequelizeRepository } from '@/category/infra/db/sequelize/repos
 import {
   DeleteCategoryUseCase,
   type DeleteCategoryInput,
-} from '@/category/application/use-cases/delete-category.use-case';
+} from '@/category/application/use-cases/delete-category/delete-category.use-case';
 import { setupSequelize } from '@/shared/infra/testing/helpers';
 import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';

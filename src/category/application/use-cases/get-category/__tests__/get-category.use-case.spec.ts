@@ -1,27 +1,23 @@
-import { CategorySequelizeRepository } from '@/category/infra/db/sequelize/repositories/category.sequelize.repository';
+import { CategoryInMemoryRepository } from '@/category/infra/db/in-memory/category-in-memory.repository';
 import {
   GetCategoryUseCase,
   type GetCategoryInput,
-} from '@/category/application/use-cases/get-category.use-case';
-import { setupSequelize } from '@/shared/infra/testing/helpers';
-import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
-import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
+} from '@/category/application/use-cases/get-category/get-category.use-case';
 import { Category } from '@/category/domain/entities/category.entity';
 import { NotFoundError } from '@/shared/domain/errors/not-found.error';
+import { Uuid } from '@/shared/domain/value-objects/uuid.vo';
 
-describe('Integration: [GetCategoryUseCase]', () => {
+describe('Unit: [GetCategoryUseCase]', () => {
   let useCase: GetCategoryUseCase;
-  let repository: CategorySequelizeRepository;
-
-  setupSequelize({ models: [CategoryModel] });
+  let repository: CategoryInMemoryRepository;
 
   beforeEach(() => {
-    repository = new CategorySequelizeRepository(CategoryModel);
+    repository = new CategoryInMemoryRepository();
     useCase = new GetCategoryUseCase(repository);
   });
 
   describe('[execute]', () => {
-    it('should get a category with all fields and persist in database', async () => {
+    it('should get a category with all fields and call repository.findById', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
@@ -34,11 +30,14 @@ describe('Integration: [GetCategoryUseCase]', () => {
       const input: GetCategoryInput = {
         id: existingCategory.id.value,
       };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
+      expect(findByIdSpy).toHaveBeenCalledWith(expect.any(Uuid));
       expect(output).toMatchObject({
         id: existingCategory.id.value,
         name: existingCategory.name,
@@ -47,16 +46,9 @@ describe('Integration: [GetCategoryUseCase]', () => {
       });
       expect(output.created_at).toBeInstanceOf(Date);
       expect(output.created_at).toEqual(existingCategory.created_at);
-
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.id).toBe(output.id);
-      expect(found?.name).toBe(output.name);
-      expect(found?.description).toBe(output.description);
-      expect(found?.is_active).toBe(output.is_active);
     });
 
-    it('should get a category with null description and persist in database', async () => {
+    it('should get a category with null description and call repository.findById', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
@@ -69,31 +61,26 @@ describe('Integration: [GetCategoryUseCase]', () => {
       const input: GetCategoryInput = {
         id: existingCategory.id.value,
       };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
       expect(output).toMatchObject({
         id: existingCategory.id.value,
         name: existingCategory.name,
         description: null,
         is_active: existingCategory.is_active,
       });
-
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.name).toBe(output.name);
-      expect(found?.description).toBeNull();
-      expect(found?.is_active).toBe(output.is_active);
     });
 
-    it('should get an active category and persist in database', async () => {
+    it('should get an active category and call repository.findById', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
         .withName('Active Category')
-        .withDescription('Active Description')
         .activate()
         .build();
       await repository.insert(existingCategory);
@@ -101,28 +88,25 @@ describe('Integration: [GetCategoryUseCase]', () => {
       const input: GetCategoryInput = {
         id: existingCategory.id.value,
       };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
       expect(output).toMatchObject({
         id: existingCategory.id.value,
         name: existingCategory.name,
         is_active: true,
       });
-
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.is_active).toBe(true);
     });
 
-    it('should get an inactive category and persist in database', async () => {
+    it('should get an inactive category and call repository.findById', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
         .withName('Inactive Category')
-        .withDescription('Inactive Description')
         .deactivate()
         .build();
       await repository.insert(existingCategory);
@@ -130,20 +114,18 @@ describe('Integration: [GetCategoryUseCase]', () => {
       const input: GetCategoryInput = {
         id: existingCategory.id.value,
       };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
       expect(output).toMatchObject({
         id: existingCategory.id.value,
         name: existingCategory.name,
         is_active: false,
       });
-
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.is_active).toBe(false);
     });
 
     it('should throw NotFoundError when category does not exist', async () => {
@@ -152,82 +134,40 @@ describe('Integration: [GetCategoryUseCase]', () => {
       const input: GetCategoryInput = {
         id: nonExistentId,
       };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act & Assert
       await expect(useCase.execute(input)).rejects.toThrow(NotFoundError);
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
+      expect(findByIdSpy).toHaveBeenCalledWith(expect.any(Uuid));
     });
 
-    it('should get category and verify it matches the entity from repository', async () => {
+    it('should verify the Uuid passed to findById has correct value', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
         .withName('Category Name')
-        .withDescription('Category Description')
-        .activate()
         .build();
       await repository.insert(existingCategory);
 
       const input: GetCategoryInput = {
         id: existingCategory.id.value,
       };
-
-      // Act
-      const output = await useCase.execute(input);
-      const foundCategory = await repository.findById(existingCategory.id);
-
-      // Assert
-      expect(foundCategory).not.toBeNull();
-      expect(output.id).toBe(foundCategory?.id.value);
-      expect(output.name).toBe(foundCategory?.name);
-      expect(output.description).toBe(foundCategory?.description);
-      expect(output.is_active).toBe(foundCategory?.is_active);
-      expect(output.created_at).toEqual(foundCategory?.created_at);
-    });
-
-    it('should get category when multiple categories exist', async () => {
-      // Arrange
-      const category1 = Category.fake()
-        .createCategory()
-        .withName('Category 1')
-        .withDescription('Description 1')
-        .activate()
-        .build();
-      const category2 = Category.fake()
-        .createCategory()
-        .withName('Category 2')
-        .withDescription('Description 2')
-        .deactivate()
-        .build();
-      const category3 = Category.fake()
-        .createCategory()
-        .withName('Category 3')
-        .withDescription('Description 3')
-        .activate()
-        .build();
-      await repository.insert(category1);
-      await repository.insert(category2);
-      await repository.insert(category3);
-
-      const input: GetCategoryInput = {
-        id: category2.id.value,
-      };
+      const findByIdSpy = jest.spyOn(repository, 'findById');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
-      expect(output.id).toBe(category2.id.value);
-      expect(output.name).toBe(category2.name);
-      expect(output.description).toBe(category2.description);
-      expect(output.is_active).toBe(category2.is_active);
-
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.name).toBe(category2.name);
-      expect(found?.is_active).toBe(category2.is_active);
+      expect(findByIdSpy).toHaveBeenCalledTimes(1);
+      const calledUuid = findByIdSpy.mock.calls[0][0];
+      expect(calledUuid).toBeInstanceOf(Uuid);
+      expect(calledUuid.value).toBe(existingCategory.id.value);
+      expect(calledUuid.value).toBe(input.id);
+      expect(output.id).toBe(existingCategory.id.value);
     });
 
-    it('should return output with all category properties correctly mapped from database', async () => {
+    it('should return output with all category properties correctly mapped', async () => {
       // Arrange
       const existingCategory = Category.fake()
         .createCategory()
@@ -250,14 +190,38 @@ describe('Integration: [GetCategoryUseCase]', () => {
       expect(output.description).toBe(existingCategory.description);
       expect(output.is_active).toBe(existingCategory.is_active);
       expect(output.created_at).toEqual(existingCategory.created_at);
+    });
 
-      const found = await CategoryModel.findByPk(output.id);
-      expect(found).not.toBeNull();
-      expect(found?.id).toBe(output.id);
-      expect(found?.name).toBe(output.name);
-      expect(found?.description).toBe(output.description);
-      expect(found?.is_active).toBe(output.is_active);
-      expect(found?.created_at).toEqual(output.created_at);
+    it('should get category when multiple categories exist', async () => {
+      // Arrange
+      const category1 = Category.fake()
+        .createCategory()
+        .withName('Category 1')
+        .build();
+      const category2 = Category.fake()
+        .createCategory()
+        .withName('Category 2')
+        .build();
+      const category3 = Category.fake()
+        .createCategory()
+        .withName('Category 3')
+        .build();
+      await repository.insert(category1);
+      await repository.insert(category2);
+      await repository.insert(category3);
+
+      const input: GetCategoryInput = {
+        id: category2.id.value,
+      };
+
+      // Act
+      const output = await useCase.execute(input);
+
+      // Assert
+      expect(output.id).toBe(category2.id.value);
+      expect(output.name).toBe(category2.name);
+      expect(output.description).toBe(category2.description);
+      expect(output.is_active).toBe(category2.is_active);
     });
   });
 });

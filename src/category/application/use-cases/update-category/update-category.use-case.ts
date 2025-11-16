@@ -8,6 +8,7 @@ import {
   type CategoryOutput,
 } from '@/category/application/use-cases/common/category-output';
 import { EntityValidationError } from '@/shared/domain/validators/validation.error';
+import type { UpdateCategoryInput } from '@/category/application/use-cases/update-category/update-category.input';
 
 export class UpdateCategoryUseCase
   implements IUseCase<UpdateCategoryInput, UpdateCategoryOutput>
@@ -47,12 +48,5 @@ export class UpdateCategoryUseCase
     return CategoryOutputMapper.toOutput(category);
   }
 }
-
-export type UpdateCategoryInput = {
-  id: string;
-  name?: string;
-  description?: string;
-  is_active?: boolean;
-};
 
 export type UpdateCategoryOutput = CategoryOutput;

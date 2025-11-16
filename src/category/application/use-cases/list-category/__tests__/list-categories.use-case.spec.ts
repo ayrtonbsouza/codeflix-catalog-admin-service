@@ -1,60 +1,51 @@
-import { CategorySequelizeRepository } from '@/category/infra/db/sequelize/repositories/category.sequelize.repository';
+import { CategoryInMemoryRepository } from '@/category/infra/db/in-memory/category-in-memory.repository';
 import {
   ListCategoriesUseCase,
   type ListCategoriesInput,
-} from '@/category/application/use-cases/list-categories.use-case';
-import { setupSequelize } from '@/shared/infra/testing/helpers';
-import { CategoryModel } from '@/category/infra/db/sequelize/model/category.model';
+} from '@/category/application/use-cases/list-category/list-categories.use-case';
 import { Category } from '@/category/domain/entities/category.entity';
+import { CategorySearchParams } from '@/category/domain/repositories/category.repository';
 
-describe('Integration: [ListCategoriesUseCase]', () => {
+describe('Unit: [ListCategoriesUseCase]', () => {
   let useCase: ListCategoriesUseCase;
-  let repository: CategorySequelizeRepository;
-
-  setupSequelize({ models: [CategoryModel] });
+  let repository: CategoryInMemoryRepository;
 
   beforeEach(() => {
-    repository = new CategorySequelizeRepository(CategoryModel);
+    repository = new CategoryInMemoryRepository();
     useCase = new ListCategoriesUseCase(repository);
   });
 
   describe('[execute]', () => {
-    it('should list categories with default pagination and persist in database', async () => {
+    it('should list categories with default pagination and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
         .withName('Category 1')
-        .withDescription('Description 1')
-        .activate()
         .build();
       const category2 = Category.fake()
         .createCategory()
         .withName('Category 2')
-        .withDescription('Description 2')
-        .activate()
         .build();
       await repository.insert(category1);
       await repository.insert(category2);
 
       const input: ListCategoriesInput = {};
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
+      expect(searchSpy).toHaveBeenCalledWith(expect.any(CategorySearchParams));
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(2);
       expect(output.current_page).toBe(1);
       expect(output.per_page).toBe(15);
       expect(output.last_page).toBe(1);
-
-      const found1 = await CategoryModel.findByPk(category1.id.value);
-      const found2 = await CategoryModel.findByPk(category2.id.value);
-      expect(found1).not.toBeNull();
-      expect(found2).not.toBeNull();
     });
 
-    it('should list categories with custom pagination and persist in database', async () => {
+    it('should list categories with custom pagination and call repository.search', async () => {
       // Arrange
       const categories = Category.fake()
         .createManyCategories(5)
@@ -66,22 +57,21 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         page: 1,
         per_page: 2,
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(5);
       expect(output.current_page).toBe(1);
       expect(output.per_page).toBe(2);
       expect(output.last_page).toBe(3);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(5);
     });
 
-    it('should list categories with filter and persist in database', async () => {
+    it('should list categories with filter and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -102,11 +92,13 @@ describe('Integration: [ListCategoriesUseCase]', () => {
       const input: ListCategoriesInput = {
         filter: 'action',
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(2);
       expect(
@@ -114,14 +106,9 @@ describe('Integration: [ListCategoriesUseCase]', () => {
           item.name.toLowerCase().includes('action'),
         ),
       ).toBe(true);
-
-      const found1 = await CategoryModel.findByPk(category1.id.value);
-      const found3 = await CategoryModel.findByPk(category3.id.value);
-      expect(found1).not.toBeNull();
-      expect(found3).not.toBeNull();
     });
 
-    it('should list categories with sort and persist in database', async () => {
+    it('should list categories with sort and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -143,21 +130,20 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         sort: 'name',
         sort_dir: 'asc',
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(3);
       expect(output.items[0].name).toBe('Apple Category');
       expect(output.items[1].name).toBe('Banana Category');
       expect(output.items[2].name).toBe('Zebra Category');
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(3);
     });
 
-    it('should list categories with sort descending and persist in database', async () => {
+    it('should list categories with sort descending and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -179,36 +165,37 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         sort: 'name',
         sort_dir: 'desc',
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(3);
       expect(output.items[0].name).toBe('Zebra Category');
       expect(output.items[1].name).toBe('Banana Category');
       expect(output.items[2].name).toBe('Apple Category');
     });
 
-    it('should return empty list when no categories exist in database', async () => {
+    it('should return empty list when no categories exist', async () => {
       // Arrange
       const input: ListCategoriesInput = {};
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(0);
       expect(output.total).toBe(0);
       expect(output.current_page).toBe(1);
       expect(output.per_page).toBe(15);
       expect(output.last_page).toBe(0);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(0);
     });
 
-    it('should return empty list when filter finds nothing in database', async () => {
+    it('should return empty list when filter finds nothing', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -224,19 +211,18 @@ describe('Integration: [ListCategoriesUseCase]', () => {
       const input: ListCategoriesInput = {
         filter: 'Horror',
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(0);
       expect(output.total).toBe(0);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(2);
     });
 
-    it('should list categories with pagination on second page and persist in database', async () => {
+    it('should list categories with pagination on second page', async () => {
       // Arrange
       const categories = Category.fake()
         .createManyCategories(5)
@@ -248,22 +234,21 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         page: 2,
         per_page: 2,
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(5);
       expect(output.current_page).toBe(2);
       expect(output.per_page).toBe(2);
       expect(output.last_page).toBe(3);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(5);
     });
 
-    it('should return output with all category properties correctly mapped from database', async () => {
+    it('should return output with all category properties correctly mapped', async () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
@@ -288,16 +273,9 @@ describe('Integration: [ListCategoriesUseCase]', () => {
       });
       expect(output.items[0].created_at).toBeInstanceOf(Date);
       expect(output.items[0].created_at).toEqual(category.created_at);
-
-      const found = await CategoryModel.findByPk(category.id.value);
-      expect(found).not.toBeNull();
-      expect(found?.id).toBe(output.items[0].id);
-      expect(found?.name).toBe(output.items[0].name);
-      expect(found?.description).toBe(output.items[0].description);
-      expect(found?.is_active).toBe(output.items[0].is_active);
     });
 
-    it('should list categories with null filter and persist in database', async () => {
+    it('should list categories with null filter and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -313,19 +291,18 @@ describe('Integration: [ListCategoriesUseCase]', () => {
       const input: ListCategoriesInput = {
         filter: null,
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(2);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(2);
     });
 
-    it('should list categories with null sort and persist in database', async () => {
+    it('should list categories with null sort and call repository.search', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -342,19 +319,49 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         sort: null,
         sort_dir: null,
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(2);
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(2);
     });
 
-    it('should return PaginatedOutput with correct structure from database', async () => {
+    it('should verify the CategorySearchParams passed to search has correct values', async () => {
+      // Arrange
+      const category = Category.fake()
+        .createCategory()
+        .withName('Category Name')
+        .build();
+      await repository.insert(category);
+
+      const input: ListCategoriesInput = {
+        page: 2,
+        per_page: 10,
+        sort: 'name',
+        sort_dir: 'asc',
+        filter: 'test',
+      };
+      const searchSpy = jest.spyOn(repository, 'search');
+
+      // Act
+      await useCase.execute(input);
+
+      // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
+      const calledParams = searchSpy.mock.calls[0][0];
+      expect(calledParams).toBeInstanceOf(CategorySearchParams);
+      expect(calledParams.page).toBe(2);
+      expect(calledParams.per_page).toBe(10);
+      expect(calledParams.sort).toBe('name');
+      expect(calledParams.sort_dir).toBe('asc');
+      expect(calledParams.filter).toBe('test');
+    });
+
+    it('should return PaginatedOutput with correct structure', async () => {
       // Arrange
       const category = Category.fake()
         .createCategory()
@@ -380,7 +387,7 @@ describe('Integration: [ListCategoriesUseCase]', () => {
       expect(typeof output.last_page).toBe('number');
     });
 
-    it('should list categories with combined filter, sort and pagination from database', async () => {
+    it('should list categories with combined filter, sort and pagination', async () => {
       // Arrange
       const category1 = Category.fake()
         .createCategory()
@@ -410,80 +417,17 @@ describe('Integration: [ListCategoriesUseCase]', () => {
         sort: 'name',
         sort_dir: 'asc',
       };
+      const searchSpy = jest.spyOn(repository, 'search');
 
       // Act
       const output = await useCase.execute(input);
 
       // Assert
+      expect(searchSpy).toHaveBeenCalledTimes(1);
       expect(output.items).toHaveLength(2);
       expect(output.total).toBe(3);
       expect(output.items[0].name).toBe('Action A');
       expect(output.items[1].name).toBe('Action B');
-
-      const allCategories = await CategoryModel.findAll();
-      expect(allCategories).toHaveLength(4);
-    });
-
-    it('should list categories with inactive status and persist in database', async () => {
-      // Arrange
-      const category1 = Category.fake()
-        .createCategory()
-        .withName('Active Category')
-        .activate()
-        .build();
-      const category2 = Category.fake()
-        .createCategory()
-        .withName('Inactive Category')
-        .deactivate()
-        .build();
-      await repository.insert(category1);
-      await repository.insert(category2);
-
-      const input: ListCategoriesInput = {};
-
-      // Act
-      const output = await useCase.execute(input);
-
-      // Assert
-      expect(output.items).toHaveLength(2);
-      expect(output.items[0].is_active).toBeDefined();
-      expect(output.items[1].is_active).toBeDefined();
-
-      const found1 = await CategoryModel.findByPk(category1.id.value);
-      const found2 = await CategoryModel.findByPk(category2.id.value);
-      expect(found1?.is_active).toBe(true);
-      expect(found2?.is_active).toBe(false);
-    });
-
-    it('should list categories with null description and persist in database', async () => {
-      // Arrange
-      const category1 = Category.fake()
-        .createCategory()
-        .withName('Category 1')
-        .withDescription(null)
-        .build();
-      const category2 = Category.fake()
-        .createCategory()
-        .withName('Category 2')
-        .withDescription('Description')
-        .build();
-      await repository.insert(category1);
-      await repository.insert(category2);
-
-      const input: ListCategoriesInput = {};
-
-      // Act
-      const output = await useCase.execute(input);
-
-      // Assert
-      expect(output.items).toHaveLength(2);
-      expect(output.items[0].description).toBeDefined();
-      expect(output.items[1].description).toBeDefined();
-
-      const found1 = await CategoryModel.findByPk(category1.id.value);
-      const found2 = await CategoryModel.findByPk(category2.id.value);
-      expect(found1?.description).toBeNull();
-      expect(found2?.description).toBe('Description');
     });
   });
 });

@@ -2,7 +2,7 @@ import { CategoryInMemoryRepository } from '@/category/infra/db/in-memory/catego
 import {
   DeleteCategoryUseCase,
   type DeleteCategoryInput,
-} from '@/category/application/use-cases/delete-category.use-case';
+} from '@/category/application/use-cases/delete-category/delete-category.use-case';
 import { Category } from '@/category/domain/entities/category.entity';
 import { NotFoundError } from '@/shared/domain/errors/not-found.error';
 import { Uuid } from '@/shared/domain/value-objects/uuid.vo';

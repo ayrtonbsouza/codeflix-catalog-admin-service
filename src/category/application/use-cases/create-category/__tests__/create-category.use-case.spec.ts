@@ -2,7 +2,7 @@ import { CategoryInMemoryRepository } from '@/category/infra/db/in-memory/catego
 import {
   CreateCategoryUseCase,
   type CreateCategoryInput,
-} from '@/category/application/use-cases/create-category.use-case';
+} from '@/category/application/use-cases/create-category/create-category.use-case';
 import { Category } from '@/category/domain/entities/category.entity';
 import { EntityValidationError } from '@/shared/domain/validators/validation.error';
 
@@ -121,7 +121,9 @@ describe('Unit: [CreateCategoryUseCase]', () => {
       };
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+      await expect(useCase.execute(input)).rejects.toThrow(
+        EntityValidationError,
+      );
 
       try {
         await useCase.execute(input);
@@ -129,7 +131,9 @@ describe('Unit: [CreateCategoryUseCase]', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(EntityValidationError);
         expect((error as EntityValidationError).error).toBeDefined();
-        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(
+          true,
+        );
       }
     });
 
@@ -140,7 +144,9 @@ describe('Unit: [CreateCategoryUseCase]', () => {
       };
 
       // Act & Assert
-      await expect(useCase.execute(input)).rejects.toThrow(EntityValidationError);
+      await expect(useCase.execute(input)).rejects.toThrow(
+        EntityValidationError,
+      );
 
       try {
         await useCase.execute(input);
@@ -148,7 +154,9 @@ describe('Unit: [CreateCategoryUseCase]', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(EntityValidationError);
         expect((error as EntityValidationError).error).toBeDefined();
-        expect(Array.isArray((error as EntityValidationError).error)).toBe(true);
+        expect(Array.isArray((error as EntityValidationError).error)).toBe(
+          true,
+        );
       }
     });
   });
