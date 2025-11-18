@@ -14,8 +14,8 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=catalog_admin_database
-    tmpfs:
-      - /var/lib/postgresql/data
+    volumes:
+      - ./.docker/dbdata:/var/lib/postgresql/data:delegated
     security_opt:
       - seccomp:unconfined
     ports:
