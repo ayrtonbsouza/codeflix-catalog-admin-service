@@ -132,11 +132,11 @@ describe('Unit: [Config]', () => {
       const dbConfig = Config.db();
 
       // Assert
-      expect(dbConfig).toEqual({
-        dialect: 'sqlite',
-        host: 'test-host',
-        logging: true,
-      });
+      expect(dbConfig.dialect).toBe('sqlite');
+      expect(dbConfig.host).toBe('test-host');
+      // Quando DB_LOGGING é 'true', logging deve ser uma função (console.log)
+      expect(typeof dbConfig.logging).toBe('function');
+      expect(dbConfig.logging).toBe(console.log);
     });
 
     it('should return logging as false when DB_LOGGING is not "true"', () => {

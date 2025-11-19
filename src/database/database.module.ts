@@ -6,16 +6,26 @@ import type { CONFIG_SCHEMA_TYPE } from '@/config/config.module';
 
 const models = [CategoryModel];
 
+function getLoggingOption(
+  enableLogging: boolean,
+): false | ((sql: string) => void) {
+  return enableLogging ? console.log : false;
+}
+
 @Module({
   imports: [
     SequelizeModule.forRootAsync({
       useFactory: (configService: ConfigService<CONFIG_SCHEMA_TYPE>) => {
         const dbVendor = configService.get('DB_VENDOR');
+        const logging = getLoggingOption(
+          configService.get('DB_LOGGING') ?? false,
+        );
+
         if (configService.get('DB_VENDOR') === 'sqlite') {
           return {
             dialect: 'sqlite',
             host: configService.get('DB_HOST'),
-            logging: configService.get('DB_LOGGING'),
+            logging,
             models,
             autoLoadModels: configService.get('DB_AUTO_LOAD_MODELS'),
           };
@@ -28,7 +38,7 @@ const models = [CategoryModel];
             database: configService.get('DB_DATABASE'),
             username: configService.get('DB_USERNAME'),
             password: configService.get('DB_PASSWORD'),
-            logging: configService.get('DB_LOGGING'),
+            logging,
             autoLoadModels: configService.get('DB_AUTO_LOAD_MODELS'),
             models,
           };

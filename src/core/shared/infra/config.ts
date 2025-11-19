@@ -1,16 +1,23 @@
 import { join } from 'path';
 import { config as readEnv } from 'dotenv';
 
+function getLoggingOption(
+  enableLogging: boolean,
+): false | ((sql: string) => void) {
+  return enableLogging ? console.log : false;
+}
+
 export class Config {
   static env: any = null;
 
   static db() {
     Config.readEnv();
 
+    const enableLogging = Config.env.DB_LOGGING === 'true';
     return {
       dialect: 'sqlite' as any,
       host: Config.env.DB_HOST,
-      logging: Config.env.DB_LOGGING === 'true',
+      logging: getLoggingOption(enableLogging),
     };
   }
 

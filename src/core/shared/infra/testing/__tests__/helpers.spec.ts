@@ -230,6 +230,58 @@ describe('Unit: [setupSequelize Helper]', () => {
   });
 });
 
+describe('Unit: [setupSequelize Helper - Logging Options]', () => {
+  describe('when logging is a custom function (covers line 19)', () => {
+    // Arrange - Testa a linha 19: options.logging quando é uma função
+    const customLoggingFn = jest.fn((sql: string) => {
+      // Função customizada de logging
+    });
+
+    const setupResult = setupSequelize({
+      dialect: 'sqlite',
+      storage: ':memory:',
+      logging: customLoggingFn, // Passa uma função, não boolean
+    });
+
+    it('should use custom logging function when provided', () => {
+      // Act & Assert
+      expect(setupResult.sequelize).toBeDefined();
+      expect(setupResult.sequelize).toBeInstanceOf(Sequelize);
+      // Verifica que a função customizada foi passada (linha 19)
+      expect(setupResult.sequelize.options.logging).toBe(customLoggingFn);
+      expect(typeof setupResult.sequelize.options.logging).toBe('function');
+    });
+  });
+
+  describe('when logging is boolean false', () => {
+    const setupResult = setupSequelize({
+      dialect: 'sqlite',
+      storage: ':memory:',
+      logging: false, // Boolean false
+    });
+
+    it('should use false when logging is false', () => {
+      // Act & Assert
+      expect(setupResult.sequelize).toBeDefined();
+      expect(setupResult.sequelize.options.logging).toBe(false);
+    });
+  });
+
+  describe('when logging is boolean true', () => {
+    const setupResult = setupSequelize({
+      dialect: 'sqlite',
+      storage: ':memory:',
+      logging: true, // Boolean true - deve ser convertido para console.log
+    });
+
+    it('should use console.log when logging is boolean true', () => {
+      // Act & Assert
+      expect(setupResult.sequelize).toBeDefined();
+      expect(setupResult.sequelize.options.logging).toBe(console.log);
+    });
+  });
+});
+
 describe('Unit: [setupSequelize Helper - Error Path Coverage]', () => {
   it('should throw error when accessing sequelize getter if instance is not initialized', () => {
     // Arrange

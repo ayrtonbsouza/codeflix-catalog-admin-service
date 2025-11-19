@@ -14,6 +14,7 @@ const config: Config = {
     '!**/*.interface.ts',
     '!**/*.error.ts',
     '!**/node_modules/**',
+    '!**/testing/**',
     '!**/dist/**',
     '!**/__tests__/**',
     '!**/__mocks__/**',
