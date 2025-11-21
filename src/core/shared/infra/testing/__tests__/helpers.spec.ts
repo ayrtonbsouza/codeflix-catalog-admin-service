@@ -232,22 +232,19 @@ describe('Unit: [setupSequelize Helper]', () => {
 
 describe('Unit: [setupSequelize Helper - Logging Options]', () => {
   describe('when logging is a custom function (covers line 19)', () => {
-    // Arrange - Testa a linha 19: options.logging quando é uma função
-    const customLoggingFn = jest.fn((sql: string) => {
-      // Função customizada de logging
-    });
+    // Arrange
+    const customLoggingFn = jest.fn((sql: string) => {});
 
     const setupResult = setupSequelize({
       dialect: 'sqlite',
       storage: ':memory:',
-      logging: customLoggingFn, // Passa uma função, não boolean
+      logging: customLoggingFn,
     });
 
     it('should use custom logging function when provided', () => {
       // Act & Assert
       expect(setupResult.sequelize).toBeDefined();
       expect(setupResult.sequelize).toBeInstanceOf(Sequelize);
-      // Verifica que a função customizada foi passada (linha 19)
       expect(setupResult.sequelize.options.logging).toBe(customLoggingFn);
       expect(typeof setupResult.sequelize.options.logging).toBe('function');
     });
@@ -257,7 +254,7 @@ describe('Unit: [setupSequelize Helper - Logging Options]', () => {
     const setupResult = setupSequelize({
       dialect: 'sqlite',
       storage: ':memory:',
-      logging: false, // Boolean false
+      logging: false,
     });
 
     it('should use false when logging is false', () => {
@@ -271,7 +268,7 @@ describe('Unit: [setupSequelize Helper - Logging Options]', () => {
     const setupResult = setupSequelize({
       dialect: 'sqlite',
       storage: ':memory:',
-      logging: true, // Boolean true - deve ser convertido para console.log
+      logging: true,
     });
 
     it('should use console.log when logging is boolean true', () => {

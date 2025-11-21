@@ -104,7 +104,6 @@ describe('Unit: [DatabaseModule]', () => {
       // Assert
       expect(conn).toBeDefined();
       expect(conn.options.dialect).toBe('sqlite');
-      // logging deve ser uma função quando DB_LOGGING é true
       expect(typeof conn.options.logging).toBe('function');
       expect(conn.options.logging).toBe(console.log);
 

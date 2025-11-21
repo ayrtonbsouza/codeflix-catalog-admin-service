@@ -294,9 +294,6 @@ describe('Unit: [UpdateCategoryInput]', () => {
       const errors = UpdateCategoryInputValidator.validate(input);
 
       // Assert
-      // Note: With skipMissingProperties: true, undefined properties are skipped
-      // This is expected behavior for update operations where optional fields may be undefined
-      // The id validation should be handled at the use case level
       expect(errors).toEqual([]);
     });
 
