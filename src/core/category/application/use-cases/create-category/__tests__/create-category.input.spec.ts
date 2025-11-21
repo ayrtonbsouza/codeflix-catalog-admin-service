@@ -2,7 +2,7 @@ import {
   CreateCategoryInput,
   CreateCategoryInputValidator,
   type CreateCategoryInputProps,
-} from '../create-category.input';
+} from '@core/category/application/use-cases/create-category/create-category.input';
 
 describe('Unit: [CreateCategoryInput]', () => {
   describe('[constructor]', () => {

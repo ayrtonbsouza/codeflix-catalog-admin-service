@@ -10,7 +10,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@core/*": ["./src/core/*"]
+      "@core/*": ["./src/core/*"],
+      "@modules/*": ["./src/modules/*"]
     },
     "sourceMap": true,
     "declaration": true,

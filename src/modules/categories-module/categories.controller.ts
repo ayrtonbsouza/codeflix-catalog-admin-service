@@ -7,8 +7,8 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CreateCategoryDto } from '@modules/categories-module/dto/create-category.dto';
+import { UpdateCategoryDto } from '@modules/categories-module/dto/update-category.dto';
 import { CategorySequelizeRepository } from '@/core/category/infra/db/sequelize/repositories/category.sequelize.repository';
 
 @Controller('categories')

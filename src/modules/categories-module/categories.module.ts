@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CategoriesController } from './categories.controller';
+import { CategoriesController } from '@modules/categories-module/categories.controller';
 import { SequelizeModule, getModelToken } from '@nestjs/sequelize';
 import { CategoryModel } from '@core/category/infra/db/sequelize/model/category.model';
 import { CategorySequelizeRepository } from '@core/category/infra/db/sequelize/repositories/category.sequelize.repository';

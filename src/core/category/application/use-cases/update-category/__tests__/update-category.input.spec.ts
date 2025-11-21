@@ -2,7 +2,7 @@ import {
   UpdateCategoryInput,
   UpdateCategoryInputValidator,
   type UpdateCategoryInputProps,
-} from '../update-category.input';
+} from '@core/category/application/use-cases/update-category/update-category.input';
 
 describe('Unit: [UpdateCategoryInput]', () => {
   describe('[constructor]', () => {

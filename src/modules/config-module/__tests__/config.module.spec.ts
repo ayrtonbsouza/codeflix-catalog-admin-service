@@ -1,4 +1,7 @@
-import { ConfigModule, CONFIG_DB_SCHEMA } from '../config.module';
+import {
+  ConfigModule,
+  CONFIG_DB_SCHEMA,
+} from '@modules/config-module/config.module';
 import * as Joi from 'joi';
 
 function expectValidate(schema: Joi.Schema, value: Record<string, unknown>) {
