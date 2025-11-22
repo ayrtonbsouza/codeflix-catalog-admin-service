@@ -48,7 +48,18 @@ export class CategoriesController {
   findAll() {}
 
   @Get(':id')
-  findOne(@Param('id') id: string) {}
+  async findOne(
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+      }),
+    )
+    id: string,
+  ) {
+    const output = await this.getCategoryUseCase.execute({ id });
+    return CategoriesController.serialize(output);
+  }
 
   @Patch(':id')
   async update(
