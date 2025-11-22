@@ -1,4 +1,7 @@
-import { Uuid, InvalidUuidError } from '@core/shared/domain/value-objects/uuid.vo';
+import {
+  Uuid,
+  InvalidUuidError,
+} from '@core/shared/domain/value-objects/uuid.vo';
 import { validate as uuidValidate } from 'uuid';
 
 let callCount = 0;
