@@ -2,7 +2,7 @@ import { Test } from '@nestjs/testing';
 import { DatabaseModule } from '@modules/database-module/database.module';
 import { getConnectionToken } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { ConfigModule } from '@/modules/config-module/config.module';
+import { ConfigModule } from '@modules/config-module/config.module';
 
 async function isDatabaseAvailable(
   host: string,
