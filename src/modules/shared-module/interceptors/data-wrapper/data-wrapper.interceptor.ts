@@ -1,0 +1,16 @@
+import {
+  type CallHandler,
+  type ExecutionContext,
+  Injectable,
+  type NestInterceptor,
+} from '@nestjs/common';
+import { Observable, map } from 'rxjs';
+
+@Injectable()
+export class DataWrapperInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    return next
+      .handle()
+      .pipe(map((body) => (!body || 'meta' in body ? body : { data: body })));
+  }
+}

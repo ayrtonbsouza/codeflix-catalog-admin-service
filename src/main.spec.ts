@@ -5,6 +5,7 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { AppModule } from '@/app.module';
+import { DataWrapperInterceptor } from './modules/shared-module/interceptors/data-wrapper/data-wrapper.interceptor';
 
 const mockUseGlobalPipes = jest.fn().mockReturnThis();
 const mockUseGlobalInterceptors = jest.fn().mockReturnThis();
@@ -78,15 +79,17 @@ describe('Unit: [main]', () => {
     );
   });
 
-  it('should configure global interceptors with ClassSerializerInterceptor', async () => {
+  it('should configure global interceptors with ClassSerializerInterceptor and DataWrapperInterceptor', async () => {
     // Act
     await bootstrap();
 
     // Assert
     expect(mockGet).toHaveBeenCalledWith(Reflector);
-    expect(mockUseGlobalInterceptors).toHaveBeenCalledTimes(1);
-    const interceptorCall = mockUseGlobalInterceptors.mock.calls[0][0];
-    expect(interceptorCall).toBeInstanceOf(ClassSerializerInterceptor);
+    expect(mockUseGlobalInterceptors).toHaveBeenCalledTimes(2);
+    const firstInterceptorCall = mockUseGlobalInterceptors.mock.calls[0][0];
+    const secondInterceptorCall = mockUseGlobalInterceptors.mock.calls[1][0];
+    expect(firstInterceptorCall).toBeInstanceOf(ClassSerializerInterceptor);
+    expect(secondInterceptorCall).toBeInstanceOf(DataWrapperInterceptor);
   });
 
   it('should listen on default port 3000 when PORT is not set', async () => {
