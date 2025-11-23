@@ -15,10 +15,16 @@ import {
   CategoriesCollectionPresenter,
   CategoriesPresenter,
 } from '@modules/categories-module/categories.presenter';
+import {
+  CreateCategoryFixture,
+  ListCategoriesFixture,
+  UpdateCategoryFixture,
+} from '@modules/categories-module/testing/category.fixture';
+import { CategoryOutputMapper } from '@core/category/application/use-cases/common/category-output';
+import { Uuid } from '@core/shared/domain/value-objects/uuid.vo';
+import { Category } from '@core/category/domain/entities/category.entity';
 import type { CreateCategoryDto } from '@modules/categories-module/dto/create-category.dto';
 import type { UpdateCategoryDto } from '@modules/categories-module/dto/update-category.dto';
-import type { SearchCategoryDto } from '@modules/categories-module/dto/search-category.dto';
-import type { SortDirection } from '@core/shared/domain/repositories/search-params';
 import { setupSequelize } from '@core/shared/infra/testing/helpers';
 
 describe('Integration: [CategoriesController]', () => {
@@ -77,233 +83,79 @@ describe('Integration: [CategoriesController]', () => {
   });
 
   describe('[create]', () => {
-    it('should create a category', async () => {
-      // Arrange
-      const input: CreateCategoryDto = {
-        name: 'Movie',
-        description: 'some description',
-        is_active: true,
-      };
+    const arrange = CreateCategoryFixture.arrangeForCreate();
 
-      // Act
-      const presenter = await controller.create(input);
+    test.each(arrange)(
+      'when body is $send_data',
+      async ({ send_data, expected }) => {
+        // Act
+        const presenter = await controller.create(send_data);
 
-      // Assert
-      expect(presenter).toBeInstanceOf(CategoriesPresenter);
-      expect(presenter.name).toBe(input.name);
-      expect(presenter.description).toBe(input.description);
-      expect(presenter.is_active).toBe(input.is_active);
-      expect(presenter.id).toBeDefined();
-      expect(presenter.created_at).toBeInstanceOf(Date);
+        // Assert
+        const entity = await repository.findById(new Uuid(presenter.id));
+        expect(entity?.toJSON()).toStrictEqual({
+          id: presenter.id,
+          created_at: presenter.created_at,
+          ...expected,
+        });
 
-      // Verify persistence
-      const found = await CategoryModel.findByPk(presenter.id);
-      expect(found).not.toBeNull();
-      expect(found?.name).toBe(input.name);
-      expect(found?.description).toBe(input.description);
-      expect(found?.is_active).toBe(input.is_active);
-    });
-
-    it('should create a category with minimal data', async () => {
-      // Arrange
-      const input: CreateCategoryDto = {
-        name: 'Series',
-      };
-
-      // Act
-      const presenter = await controller.create(input);
-
-      // Assert
-      expect(presenter).toBeInstanceOf(CategoriesPresenter);
-      expect(presenter.name).toBe('Series');
-      expect(presenter.description).toBeNull();
-      expect(presenter.is_active).toBe(true);
-
-      // Verify persistence
-      const found = await CategoryModel.findByPk(presenter.id);
-      expect(found).not.toBeNull();
-      expect(found?.name).toBe('Series');
-      expect(found?.description).toBeNull();
-      expect(found?.is_active).toBe(true);
-    });
-
-    it('should create a category with null description', async () => {
-      // Arrange
-      const input: CreateCategoryDto = {
-        name: 'Documentary',
-        description: null,
-        is_active: false,
-      };
-
-      // Act
-      const presenter = await controller.create(input);
-
-      // Assert
-      expect(presenter.description).toBeNull();
-      expect(presenter.is_active).toBe(false);
-
-      // Verify persistence
-      const found = await CategoryModel.findByPk(presenter.id);
-      expect(found?.description).toBeNull();
-      expect(found?.is_active).toBe(false);
-    });
-
-    it('should create multiple categories', async () => {
-      // Arrange
-      const inputs: CreateCategoryDto[] = [
-        { name: 'Action', description: 'Action movies' },
-        { name: 'Comedy', description: 'Comedy movies' },
-        { name: 'Drama', description: 'Drama movies' },
-      ];
-
-      // Act
-      const presenters = await Promise.all(
-        inputs.map((input) => controller.create(input)),
-      );
-
-      // Assert
-      expect(presenters).toHaveLength(3);
-      presenters.forEach((presenter, index) => {
-        expect(presenter.name).toBe(inputs[index].name);
-        expect(presenter.description).toBe(inputs[index].description);
-      });
-
-      // Verify persistence
-      const count = await CategoryModel.count();
-      expect(count).toBe(3);
-    });
+        const output = CategoryOutputMapper.toOutput(entity);
+        expect(presenter).toEqual(new CategoriesPresenter(output));
+      },
+    );
   });
 
   describe('[update]', () => {
-    it('should update a category', async () => {
-      // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'Movie',
-        description: 'some description',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
+    const arrange = UpdateCategoryFixture.arrangeForUpdate();
 
-      const updateInput: UpdateCategoryDto = {
-        name: 'Updated Movie',
-        description: 'updated description',
-        is_active: false,
-      };
+    test.each(arrange)(
+      'when body is $send_data',
+      async ({ send_data, expected }) => {
+        // Arrange
+        const category = Category.fake()
+          .createCategory()
+          .withName('Movie')
+          .withDescription('description test')
+          .build();
+        await repository.insert(category);
 
-      // Act
-      const presenter = await controller.update(created.id, updateInput);
+        // Act
+        const presenter = await controller.update(category.id.value, send_data);
 
-      // Assert
-      expect(presenter).toBeInstanceOf(CategoriesPresenter);
-      expect(presenter.id).toBe(created.id);
-      expect(presenter.name).toBe(updateInput.name);
-      expect(presenter.description).toBe(updateInput.description);
-      expect(presenter.is_active).toBe(updateInput.is_active);
+        // Assert
+        const entity = await repository.findById(new Uuid(presenter.id));
+        expect(entity?.toJSON()).toStrictEqual({
+          id: presenter.id,
+          created_at: presenter.created_at,
+          name: expected.name ?? category.name,
+          description:
+            'description' in expected
+              ? expected.description
+              : category.description,
+          is_active:
+            expected.is_active === true || expected.is_active === false
+              ? expected.is_active
+              : category.is_active,
+        });
 
-      // Verify persistence
-      const found = await CategoryModel.findByPk(created.id);
-      expect(found?.name).toBe(updateInput.name);
-      expect(found?.description).toBe(updateInput.description);
-      expect(found?.is_active).toBe(updateInput.is_active);
-    });
-
-    it('should update a category with partial data', async () => {
-      // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'Original Name',
-        description: 'Original description',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
-
-      const updateInput: UpdateCategoryDto = {
-        name: 'Updated Name',
-      };
-
-      // Act
-      const presenter = await controller.update(created.id, updateInput);
-
-      // Assert
-      expect(presenter.name).toBe('Updated Name');
-      expect(presenter.description).toBe('Original description');
-      expect(presenter.is_active).toBe(true);
-
-      // Verify persistence
-      const found = await CategoryModel.findByPk(created.id);
-      expect(found?.name).toBe('Updated Name');
-      expect(found?.description).toBe('Original description');
-    });
-
-    it('should update only is_active field', async () => {
-      // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'Test Category',
-        description: 'Test description',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
-
-      const updateInput: UpdateCategoryDto = {
-        is_active: false,
-      };
-
-      // Act
-      const presenter = await controller.update(created.id, updateInput);
-
-      // Assert
-      expect(presenter.name).toBe('Test Category');
-      expect(presenter.is_active).toBe(false);
-
-      // Verify persistence
-      const found = await CategoryModel.findByPk(created.id);
-      expect(found?.is_active).toBe(false);
-    });
-
-    it('should update description to null', async () => {
-      // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'Test Category',
-        description: 'Original description',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
-
-      const updateInput: UpdateCategoryDto = {
-        description: null,
-      };
-
-      // Act
-      const presenter = await controller.update(created.id, updateInput);
-
-      // Assert
-      expect(presenter.description).toBeNull();
-
-      // Verify persistence
-      const found = await CategoryModel.findByPk(created.id);
-      expect(found?.description).toBeNull();
-    });
+        const output = CategoryOutputMapper.toOutput(entity);
+        expect(presenter).toEqual(new CategoriesPresenter(output));
+      },
+    );
   });
 
   describe('[remove]', () => {
     it('should delete a category', async () => {
       // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'To Delete',
-        description: 'Will be deleted',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
-
-      // Verify it exists
-      const beforeDelete = await CategoryModel.findByPk(created.id);
-      expect(beforeDelete).not.toBeNull();
+      const category = Category.fake().createCategory().build();
+      await repository.insert(category);
 
       // Act
-      await controller.remove(created.id);
+      const response = await controller.remove(category.id.value);
 
       // Assert
-      const afterDelete = await CategoryModel.findByPk(created.id);
-      expect(afterDelete).toBeNull();
+      expect(response).not.toBeDefined();
+      await expect(repository.findById(category.id)).resolves.toBeNull();
     });
 
     it('should delete multiple categories', async () => {
@@ -333,22 +185,21 @@ describe('Integration: [CategoriesController]', () => {
   describe('[findOne]', () => {
     it('should get a category', async () => {
       // Arrange
-      const createInput: CreateCategoryDto = {
-        name: 'Movie',
-        description: 'some description',
-        is_active: true,
-      };
-      const created = await controller.create(createInput);
+      const category = Category.fake()
+        .createCategory()
+        .withName('Test Category')
+        .build();
+      await repository.insert(category);
 
       // Act
-      const presenter = await controller.findOne(created.id);
+      const presenter = await controller.findOne(category.id.value);
 
       // Assert
-      expect(presenter).toBeInstanceOf(CategoriesPresenter);
-      expect(presenter.id).toBe(created.id);
-      expect(presenter.name).toBe(createInput.name);
-      expect(presenter.description).toBe(createInput.description);
-      expect(presenter.is_active).toBe(createInput.is_active);
+      expect(presenter.id).toBe(category.id.value);
+      expect(presenter.name).toBe(category.name);
+      expect(presenter.description).toBe(category.description);
+      expect(presenter.is_active).toBe(category.is_active);
+      expect(presenter.created_at).toStrictEqual(category.created_at);
     });
 
     it('should get a category with null description', async () => {
@@ -394,6 +245,57 @@ describe('Integration: [CategoriesController]', () => {
   });
 
   describe('[search]', () => {
+    describe('should sorted categories by created_at', () => {
+      const { entitiesMap, arrange } =
+        ListCategoriesFixture.arrangeIncrementedWithCreatedAt();
+
+      beforeEach(async () => {
+        await repository.bulkInsert(Object.values(entitiesMap));
+      });
+
+      test.each(arrange)(
+        'when send_data is $send_data',
+        async ({ send_data, expected }) => {
+          // Act
+          const presenter = await controller.search(send_data);
+
+          // Assert
+          const { entities, ...paginationProps } = expected;
+          expect(presenter).toEqual(
+            new CategoriesCollectionPresenter({
+              items: entities.map(CategoryOutputMapper.toOutput),
+              ...paginationProps.meta,
+            }),
+          );
+        },
+      );
+    });
+
+    describe('should return categories using pagination, sort and filter', () => {
+      const { entitiesMap, arrange } = ListCategoriesFixture.arrangeUnsorted();
+
+      beforeEach(async () => {
+        await repository.bulkInsert(Object.values(entitiesMap));
+      });
+
+      test.each(arrange)(
+        'when send_data is $send_data',
+        async ({ send_data, expected }) => {
+          // Act
+          const presenter = await controller.search(send_data);
+
+          // Assert
+          const { entities, ...paginationProps } = expected;
+          expect(presenter).toEqual(
+            new CategoriesCollectionPresenter({
+              items: entities.map(CategoryOutputMapper.toOutput),
+              ...paginationProps.meta,
+            }),
+          );
+        },
+      );
+    });
+
     it('should list categories', async () => {
       // Arrange
       const createInputs: CreateCategoryDto[] = [
@@ -403,7 +305,7 @@ describe('Integration: [CategoriesController]', () => {
       ];
       await Promise.all(createInputs.map((input) => controller.create(input)));
 
-      const searchParams: SearchCategoryDto = {
+      const searchParams = {
         page: 1,
         per_page: 10,
       };
@@ -426,7 +328,7 @@ describe('Integration: [CategoriesController]', () => {
       );
       await Promise.all(createInputs.map((input) => controller.create(input)));
 
-      const searchParams: SearchCategoryDto = {
+      const searchParams = {
         page: 1,
         per_page: 5,
       };
@@ -450,7 +352,7 @@ describe('Integration: [CategoriesController]', () => {
       );
       await Promise.all(createInputs.map((input) => controller.create(input)));
 
-      const searchParams: SearchCategoryDto = {
+      const searchParams = {
         page: 2,
         per_page: 3,
       };
@@ -464,87 +366,9 @@ describe('Integration: [CategoriesController]', () => {
       expect(presenter.meta.total).toBe(10);
     });
 
-    it('should list categories with sorting', async () => {
-      // Arrange
-      const createInputs: CreateCategoryDto[] = [
-        { name: 'Zebra' },
-        { name: 'Alpha' },
-        { name: 'Beta' },
-      ];
-      await Promise.all(createInputs.map((input) => controller.create(input)));
-
-      const searchParams: SearchCategoryDto = {
-        page: 1,
-        per_page: 10,
-        sort: 'name',
-        sort_dir: 'asc' as SortDirection,
-      };
-
-      // Act
-      const presenter = await controller.search(searchParams);
-
-      // Assert
-      expect(presenter.data).toHaveLength(3);
-      expect(presenter.data[0].name).toBe('Alpha');
-      expect(presenter.data[1].name).toBe('Beta');
-      expect(presenter.data[2].name).toBe('Zebra');
-    });
-
-    it('should list categories with descending sort', async () => {
-      // Arrange
-      const createInputs: CreateCategoryDto[] = [
-        { name: 'Alpha' },
-        { name: 'Beta' },
-        { name: 'Zebra' },
-      ];
-      await Promise.all(createInputs.map((input) => controller.create(input)));
-
-      const searchParams: SearchCategoryDto = {
-        page: 1,
-        per_page: 10,
-        sort: 'name',
-        sort_dir: 'desc' as SortDirection,
-      };
-
-      // Act
-      const presenter = await controller.search(searchParams);
-
-      // Assert
-      expect(presenter.data).toHaveLength(3);
-      expect(presenter.data[0].name).toBe('Zebra');
-      expect(presenter.data[1].name).toBe('Beta');
-      expect(presenter.data[2].name).toBe('Alpha');
-    });
-
-    it('should list categories with filter', async () => {
-      // Arrange
-      const createInputs: CreateCategoryDto[] = [
-        { name: 'Action Movie' },
-        { name: 'Comedy Movie' },
-        { name: 'Action Series' },
-        { name: 'Drama Movie' },
-      ];
-      await Promise.all(createInputs.map((input) => controller.create(input)));
-
-      const searchParams: SearchCategoryDto = {
-        page: 1,
-        per_page: 10,
-        filter: 'Action',
-      };
-
-      // Act
-      const presenter = await controller.search(searchParams);
-
-      // Assert
-      expect(presenter.data.length).toBeGreaterThan(0);
-      presenter.data.forEach((item) => {
-        expect(item.name.toLowerCase()).toContain('action');
-      });
-    });
-
     it('should list categories with empty result', async () => {
       // Arrange
-      const searchParams: SearchCategoryDto = {
+      const searchParams = {
         page: 1,
         per_page: 10,
         filter: 'NonExistent',
@@ -567,7 +391,7 @@ describe('Integration: [CategoriesController]', () => {
       ];
       await Promise.all(createInputs.map((input) => controller.create(input)));
 
-      const searchParams: SearchCategoryDto = {};
+      const searchParams = {};
 
       // Act
       const presenter = await controller.search(searchParams);
