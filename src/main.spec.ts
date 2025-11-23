@@ -5,16 +5,20 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { AppModule } from '@/app.module';
-import { DataWrapperInterceptor } from './modules/shared-module/interceptors/data-wrapper/data-wrapper.interceptor';
+import { DataWrapperInterceptor } from '@modules/shared-module/interceptors/data-wrapper/data-wrapper.interceptor';
+import { NotFoundFilter } from '@modules/shared-module/filters/not-found/not-found.filter';
+import { EntityValidationFilter } from '@modules/shared-module/filters/entity-validation/entity-validation.filter';
 
 const mockUseGlobalPipes = jest.fn().mockReturnThis();
 const mockUseGlobalInterceptors = jest.fn().mockReturnThis();
+const mockUseGlobalFilters = jest.fn().mockReturnThis();
 const mockListen = jest.fn().mockResolvedValue(undefined);
 const mockGet = jest.fn();
 
 const mockApp = {
   useGlobalPipes: mockUseGlobalPipes,
   useGlobalInterceptors: mockUseGlobalInterceptors,
+  useGlobalFilters: mockUseGlobalFilters,
   listen: mockListen,
   get: mockGet,
 };
@@ -90,6 +94,18 @@ describe('Unit: [main]', () => {
     const secondInterceptorCall = mockUseGlobalInterceptors.mock.calls[1][0];
     expect(firstInterceptorCall).toBeInstanceOf(ClassSerializerInterceptor);
     expect(secondInterceptorCall).toBeInstanceOf(DataWrapperInterceptor);
+  });
+
+  it('should configure global filters with NotFoundFilter and EntityValidationFilter', async () => {
+    // Act
+    await bootstrap();
+
+    // Assert
+    expect(mockUseGlobalFilters).toHaveBeenCalledTimes(1);
+    const filtersCall = mockUseGlobalFilters.mock.calls[0];
+    expect(filtersCall).toHaveLength(2);
+    expect(filtersCall[0]).toBeInstanceOf(NotFoundFilter);
+    expect(filtersCall[1]).toBeInstanceOf(EntityValidationFilter);
   });
 
   it('should listen on default port 3000 when PORT is not set', async () => {
