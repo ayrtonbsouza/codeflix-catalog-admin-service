@@ -1,8 +1,11 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { ValidationPipe, HttpStatus, ClassSerializerInterceptor } from '@nestjs/common';
+import {
+  ValidationPipe,
+  HttpStatus,
+  ClassSerializerInterceptor,
+} from '@nestjs/common';
 import { AppModule } from '@/app.module';
 
-// Create mocks before importing the module
 const mockUseGlobalPipes = jest.fn().mockReturnThis();
 const mockUseGlobalInterceptors = jest.fn().mockReturnThis();
 const mockListen = jest.fn().mockResolvedValue(undefined);
@@ -15,7 +18,6 @@ const mockApp = {
   get: mockGet,
 };
 
-// Mock NestFactory before importing main
 jest.spyOn(NestFactory, 'create').mockResolvedValue(mockApp as any);
 
 describe('Unit: [main]', () => {
@@ -23,7 +25,6 @@ describe('Unit: [main]', () => {
   let bootstrap: () => Promise<void>;
 
   beforeAll(async () => {
-    // Import bootstrap after setting up the spy
     const mainModule = await import('@/main');
     bootstrap = mainModule.bootstrap;
   });
@@ -72,7 +73,9 @@ describe('Unit: [main]', () => {
     expect(mockUseGlobalPipes).toHaveBeenCalledTimes(1);
     const validationPipeCall = mockUseGlobalPipes.mock.calls[0][0];
     expect(validationPipeCall).toBeInstanceOf(ValidationPipe);
-    expect(validationPipeCall.errorHttpStatusCode).toBe(HttpStatus.UNPROCESSABLE_ENTITY);
+    expect(validationPipeCall.errorHttpStatusCode).toBe(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+    );
   });
 
   it('should configure global interceptors with ClassSerializerInterceptor', async () => {

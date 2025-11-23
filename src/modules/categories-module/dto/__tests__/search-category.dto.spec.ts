@@ -103,5 +103,3 @@ describe('Unit: [SearchCategoryDto]', () => {
     expect(dto.filter).toBe('category');
   });
 });
-
-

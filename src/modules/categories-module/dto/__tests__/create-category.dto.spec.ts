@@ -70,5 +70,3 @@ describe('Unit: [CreateCategoryDto]', () => {
     expect(dto.description).toBeNull();
   });
 });
-
-

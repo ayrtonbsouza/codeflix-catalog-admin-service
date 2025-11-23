@@ -33,5 +33,3 @@ describe('Unit: [SharedModule]', () => {
     expect(module).toBeDefined();
   });
 });
-
-
